@@ -15,12 +15,12 @@ app.use(express.static('.'));
 // 🔧 ADMIN EMAIL CONFIGURATION (Modify these values)
 // ═══════════════════════════════════════════════════════════
 const EMAIL_CONFIG = {
-  // Gmail account credentials
-  ADMIN_GMAIL: 'excelmindpulse@gmail.com',        // ← ENTER YOUR GMAIL HERE
-  GMAIL_PASSWORD: 'rygfziryurpcsgvb',        // ← ENTER YOUR GMAIL APP PASSWORD HERE
+  // Gmail account credentials - read from environment variables
+  ADMIN_GMAIL: process.env.ADMIN_GMAIL || 'excelmindpulse@gmail.com',
+  GMAIL_PASSWORD: process.env.GMAIL_PASSWORD || 'rygfziryurpcsgvb',
   
   // Admin email where reports will be sent
-  ADMIN_EMAIL: 'excelmindpulse@gmail.com',           // ← ENTER ADMIN EMAIL HERE
+  ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'excelmindpulse@gmail.com',
   
   // Email subject and footer
   EMAIL_SUBJECT: 'New Psychometric Assessment Report',
@@ -130,9 +130,12 @@ app.get('/', (req, res) => {
 // ═══════════════════════════════════════════════════════════
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
+  const usingEnvVars = process.env.ADMIN_GMAIL || process.env.GMAIL_PASSWORD || process.env.ADMIN_EMAIL;
+  
   console.log(`\n✅ Server running at http://localhost:${PORT}`);
   console.log(`📧 Reports will be sent to: ${EMAIL_CONFIG.ADMIN_EMAIL}`);
   console.log('\n⚙️  EMAIL CONFIGURATION:');
   console.log(`   Gmail Account: ${EMAIL_CONFIG.ADMIN_GMAIL}`);
-  console.log(`   Admin Email: ${EMAIL_CONFIG.ADMIN_EMAIL}\n`);
+  console.log(`   Admin Email: ${EMAIL_CONFIG.ADMIN_EMAIL}`);
+  console.log(`   Using Environment Variables: ${usingEnvVars ? '✅ YES' : '❌ NO (using defaults)'}\n`);
 });
