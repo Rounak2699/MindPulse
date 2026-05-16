@@ -2,7 +2,6 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const cors = require('cors');
-const sgMail = require('@sendgrid/mail');
 
 const app = express();
 
@@ -13,14 +12,14 @@ app.use(express.urlencoded({ limit: '50mb' }));
 app.use(express.static('.'));
 
 // ═══════════════════════════════════════════════════════════
-// 🔧 EMAIL CONFIGURATION (using SendGrid)
+// 🔧 ADMIN EMAIL CONFIGURATION (Modify these values)
 // ═══════════════════════════════════════════════════════════
 const EMAIL_CONFIG = {
-  // SendGrid API Key
-  SENDGRID_API_KEY: process.env.SENDGRID_API_KEY || '',
+  // Gmail account credentials - read from environment variables
+  ADMIN_GMAIL: process.env.ADMIN_GMAIL || 'excelmindpulse@gmail.com',
+  GMAIL_PASSWORD: process.env.GMAIL_PASSWORD || 'olykbhiawtgawrqx',
   
-  // Email configuration
-  FROM_EMAIL: process.env.FROM_EMAIL || 'noreply@mindpulse.com',
+  // Admin email where reports will be sent
   ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'excelmindpulse@gmail.com',
   
   // Email subject and footer
@@ -28,15 +27,25 @@ const EMAIL_CONFIG = {
   EMAIL_FOOTER: 'This is an automated email from the Psychometric Analysis System.'
 };
 
-// Initialize SendGrid
-sgMail.setApiKey(EMAIL_CONFIG.SENDGRID_API_KEY);
+// ═══════════════════════════════════════════════════════════
+// Email transporter configuration (Gmail)
+// ═══════════════════════════════════════════════════════════
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: EMAIL_CONFIG.ADMIN_GMAIL,
+    pass: EMAIL_CONFIG.GMAIL_PASSWORD
+  }
+});
 
-// Verify SendGrid configuration at startup
-if (!EMAIL_CONFIG.SENDGRID_API_KEY) {
-  console.warn('⚠️ SendGrid API Key not configured. Email sending will fail.');
-} else {
-  console.log('✅ SendGrid configured and ready');
-}
+// Verify transporter connection at startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('❌ Email transporter error:', error.message);
+  } else {
+    console.log('✅ Email transporter ready - connection verified');
+  }
+});
 
 // ═══════════════════════════════════════════════════════════
 // 📧 ENDPOINT: Send PDF Report via Email
@@ -66,31 +75,26 @@ app.post('/api/send-report', async (req, res) => {
       <p>${EMAIL_CONFIG.EMAIL_FOOTER}</p>
     `;
 
+    // Mail options
+    const mailOptions = {
+      from: EMAIL_CONFIG.ADMIN_GMAIL,
+      to: EMAIL_CONFIG.ADMIN_EMAIL,
+      subject: `${EMAIL_CONFIG.EMAIL_SUBJECT} - ${userName}`,
+      html: emailContent,
+      attachments: [
+        {
+          filename: fileName,
+          content: pdfBuffer,
+          contentType: 'application/pdf'
+        }
+      ]
+    };
+
     // Send email with timeout
     try {
-      if (!EMAIL_CONFIG.SENDGRID_API_KEY) {
-        throw new Error('SendGrid API Key not configured');
-      }
-
-      console.log(`📤 Attempting to send email from ${EMAIL_CONFIG.FROM_EMAIL} to ${EMAIL_CONFIG.ADMIN_EMAIL}`);
-      
-      const msg = {
-        to: EMAIL_CONFIG.ADMIN_EMAIL,
-        from: EMAIL_CONFIG.FROM_EMAIL,
-        subject: `${EMAIL_CONFIG.EMAIL_SUBJECT} - ${userName}`,
-        html: emailContent,
-        attachments: [
-          {
-            filename: fileName,
-            content: pdfBase64,
-            type: 'application/pdf',
-            disposition: 'attachment'
-          }
-        ]
-      };
-
+      console.log(`📤 Attempting to send email from ${EMAIL_CONFIG.ADMIN_GMAIL} to ${EMAIL_CONFIG.ADMIN_EMAIL}`);
       await Promise.race([
-        sgMail.send(msg),
+        transporter.sendMail(mailOptions),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Email send timeout')), 10000)
         )
@@ -100,7 +104,7 @@ app.post('/api/send-report', async (req, res) => {
       console.error(`❌ Email error details:`, {
         message: emailError.message,
         code: emailError.code,
-        status: emailError.status
+        response: emailError.response
       });
       console.warn(`⚠️ Email sending failed (non-blocking): ${emailError.message}`);
       // Don't fail the entire request - email is optional
@@ -142,12 +146,12 @@ app.get('/api/debug', (req, res) => {
       port: process.env.PORT || '3000'
     },
     email_config: {
-      from_email: EMAIL_CONFIG.FROM_EMAIL,
+      admin_gmail: EMAIL_CONFIG.ADMIN_GMAIL,
+      gmail_password_length: EMAIL_CONFIG.GMAIL_PASSWORD.length,
       admin_email: EMAIL_CONFIG.ADMIN_EMAIL,
-      sendgrid_api_key_length: EMAIL_CONFIG.SENDGRID_API_KEY.length,
       env_vars_loaded: {
-        SENDGRID_API_KEY: !!process.env.SENDGRID_API_KEY,
-        FROM_EMAIL: !!process.env.FROM_EMAIL,
+        ADMIN_GMAIL: !!process.env.ADMIN_GMAIL,
+        GMAIL_PASSWORD: !!process.env.GMAIL_PASSWORD,
         ADMIN_EMAIL: !!process.env.ADMIN_EMAIL
       }
     }
@@ -164,13 +168,14 @@ app.get('/', (req, res) => {
 // ═══════════════════════════════════════════════════════════
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  const hasApiKey = !!process.env.SENDGRID_API_KEY;
+  const usingEnvVars = process.env.ADMIN_GMAIL || process.env.GMAIL_PASSWORD || process.env.ADMIN_EMAIL;
   
   console.log(`\n✅ Server running at http://localhost:${PORT}`);
   console.log(`📧 Reports will be sent to: ${EMAIL_CONFIG.ADMIN_EMAIL}`);
-  console.log('\n⚙️  EMAIL CONFIGURATION (SendGrid):');
-  console.log(`   From Email: ${EMAIL_CONFIG.FROM_EMAIL}`);
+  console.log('\n⚙️  EMAIL CONFIGURATION:');
+  console.log(`   Gmail Account: ${EMAIL_CONFIG.ADMIN_GMAIL}`);
   console.log(`   Admin Email: ${EMAIL_CONFIG.ADMIN_EMAIL}`);
-  console.log(`   SendGrid API Key Configured: ${hasApiKey ? '✅ YES' : '❌ NO'}`);
+  console.log(`   Using Environment Variables: ${usingEnvVars ? '✅ YES' : '❌ NO (using defaults)'}`);
+  console.log(`   Password length: ${EMAIL_CONFIG.GMAIL_PASSWORD.length} characters`);
   console.log(`\n🔍 Debug endpoint available at: /api/debug\n`);
 });
