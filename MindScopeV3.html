@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excel MindPulse — Teaching Aptitude Assessment</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>"
+    type="image/svg+xml">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --bg: #07080d;
+      --bg2: #0f1118;
+      --bg3: #161a24;
+      --bg4: #1c2030;
+      --border: rgba(255, 255, 255, 0.07);
+      --border2: rgba(255, 255, 255, 0.13);
+      --text: #eeeae0;
+      --text2: #8a8680;
+      --text3: #4a4845;
+      --gold: #d4a843;
+      --gold2: #f0c75a;
+      --gold-dim: rgba(212, 168, 67, 0.1);
+      --blue: #4a8fe8;
+      --purple: #9b6de8;
+      --r: 12px;
+      --r2: 20px;
+      --r3: 28px;
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+      flex-direction: column
+    }
+
+    .screen.active {
+      display: flex
+    }
+
+    #screen-quiz.active {
+      display: flex
+    }
+
+    .amb {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(100px);
+      opacity: 0.13
+    }
+
+    .a1 {
+      width: 600px;
+      height: 600px;
+      background: var(--gold);
+      top: -200px;
+      right: -200px
+    }
+
+    .a2 {
+      width: 500px;
+      height: 500px;
+      background: var(--blue);
+      bottom: -150px;
+      left: -150px
+    }
+
+    .a3 {
+      width: 350px;
+      height: 350px;
+      background: var(--purple);
+      top: 45%;
+      left: 25%
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-8px)
+      }
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0);
+        opacity: 1
+      }
+
+      100% {
+        transform: scale(4);
+        opacity: 0
+      }
+    }
+
+    .au1 {
+      animation: fadeUp .5s ease both
+    }
+
+    .au2 {
+      animation: fadeUp .5s .08s ease both
+    }
+
+    .au3 {
+      animation: fadeUp .5s .16s ease both
+    }
+
+    .au4 {
+      animation: fadeUp .5s .24s ease both
+    }
+
+    .au5 {
+      animation: fadeUp .5s .32s ease both
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 28px;
+      border-radius: var(--r);
+      border: none;
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all .2s;
+      text-decoration: none;
+      overflow: hidden
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #07080d
+    }
+
+    .btn-gold:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(212, 168, 67, .35)
+    }
+
+    .btn-ghost {
+      background: var(--bg3);
+      color: var(--text2);
+      border: 1px solid var(--border2)
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg4);
+      color: var(--text)
+    }
+
+    .form-group {
+      margin-bottom: 1.1rem;
+      position: relative;
+      border: none;
+      padding: 0;
+    }
+
+    .form-group legend {
+      padding: 0;
+      margin-bottom: 7px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text2);
+      margin-bottom: 7px;
+      transition: color .3s ease
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      transition: border-color .3s cubic-bezier(.4, 0, .2, 1), background-color .3s ease, box-shadow .3s ease, transform .2s ease;
+      appearance: none;
+      position: relative
+    }
+
+    .form-group input:hover:not(:focus) {
+      background: var(--bg4);
+      border-color: var(--border2)
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--gold);
+      background: var(--bg4);
+      box-shadow: 0 0 0 3px rgba(212, 168, 67, .12), inset 0 0 12px rgba(212, 168, 67, .05);
+      transform: translateY(-1px)
+    }
+
+    .form-group input:not(:placeholder-shown) {
+      background: linear-gradient(135deg, var(--bg3) 0%, rgba(212, 168, 67, .03) 100%)
+    }
+
+    .form-group input:not(:placeholder-shown):focus {
+      background: linear-gradient(135deg, var(--bg4) 0%, rgba(212, 168, 67, .05) 100%)
+    }
+
+    .form-group input::placeholder {
+      color: var(--text2);
+      transition: color .3s ease
+    }
+
+    .form-group input:focus::placeholder {
+      color: var(--gold);
+      opacity: 0.5
+    }
+
+    .form-group select {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      transition: border-color .3s cubic-bezier(.4, 0, .2, 1), background-color .3s ease, box-shadow .3s ease, transform .2s ease;
+      cursor: pointer;
+      appearance: none;
+      padding-right: 40px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238a8680' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 40px;
+      position: relative
+    }
+
+    .form-group select:hover:not(:focus) {
+      background-color: var(--bg4);
+      border-color: var(--border2);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238a8680' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center
+    }
+
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--gold);
+      background-color: var(--bg4);
+      box-shadow: 0 0 0 3px rgba(212, 168, 67, .12), inset 0 0 12px rgba(212, 168, 67, .05);
+      transform: translateY(-1px);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23d4a843' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center
+    }
+
+    .form-group select option {
+      background: var(--bg);
+      color: var(--text);
+      padding: 10px;
+      border-radius: 4px
+    }
+
+    .form-group select option:hover {
+      background: var(--bg3);
+      color: var(--gold)
+    }
+
+    .form-group select option:checked {
+      background: linear-gradient(#d4a843, #d4a843);
+      background-color: var(--gold);
+      color: var(--bg)
+    }
+
+    .form-group select option[disabled] {
+      color: var(--gold);
+      font-weight: 600;
+      background: transparent
+    }
+
+    .form-group select.has-error {
+      border-color: #e87a6a;
+      background-color: var(--bg3);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23e87a6a' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      box-shadow: inset 0 0 8px rgba(232, 98, 74, .08)
+    }
+
+    .form-group select.has-error:focus {
+      border-color: #e87a6a;
+      background-color: var(--bg4);
+      box-shadow: 0 0 0 3px rgba(232, 98, 74, .12), inset 0 0 12px rgba(232, 98, 74, .05);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23e87a6a' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center
+    }
+
+    #inp-college-other {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      transition: all .3s cubic-bezier(.4, 0, .2, 1);
+      animation: slideInOther .3s ease;
+    }
+
+    @keyframes slideInOther {
+      from {
+        opacity: 0;
+        transform: translateY(-8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    #inp-college-other:hover:not(:focus) {
+      background: var(--bg4);
+      border-color: var(--border2)
+    }
+
+    #inp-college-other:focus {
+      outline: none;
+      border-color: var(--gold);
+      background: var(--bg4);
+      box-shadow: 0 0 0 3px rgba(212, 168, 67, .12), inset 0 0 12px rgba(212, 168, 67, .05);
+      transform: translateY(-1px)
+    }
+
+    #inp-college-other::placeholder {
+      color: var(--text2);
+      transition: color .3s ease
+    }
+
+    #inp-college-other:focus::placeholder {
+      color: var(--gold);
+      opacity: 0.5
+    }
+
+    #inp-college-other.has-error {
+      border-color: #e87a6a;
+      background: linear-gradient(135deg, var(--bg3) 0%, rgba(232, 98, 74, .03) 100%)
+    }
+
+    #inp-college-other.has-error:focus {
+      border-color: #e87a6a;
+      box-shadow: 0 0 0 3px rgba(232, 98, 74, .12), inset 0 0 12px rgba(232, 98, 74, .05)
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem
+    }
+
+    @media(max-width:520px) {
+      .form-row {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .gender-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap
+    }
+
+    .gender-btn {
+      flex: 1;
+      min-width: 68px;
+      padding: 9px 8px;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--text2);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .3s cubic-bezier(.4, 0, .2, 1);
+      text-align: center;
+      position: relative;
+      overflow: hidden
+    }
+
+    .gender-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(212, 168, 67, .1) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity .3s ease
+    }
+
+    .gender-btn:hover {
+      border-color: var(--border2);
+      background: var(--bg4);
+      color: var(--text);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(212, 168, 67, .1)
+    }
+
+    .gender-btn:hover::before {
+      opacity: 1
+    }
+
+    .gender-btn.sel {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, var(--gold-dim) 0%, rgba(212, 168, 67, .05) 100%);
+      color: var(--gold2);
+      box-shadow: 0 0 20px rgba(212, 168, 67, .25);
+      transform: scale(1.02)
+    }
+
+    .err {
+      color: #e87a6a;
+      font-size: 11px;
+      margin-top: 4px;
+      display: none;
+      animation: slideInError .3s ease;
+      font-weight: 500
+    }
+
+    @keyframes slideInError {
+      from {
+        opacity: 0;
+        transform: translateX(-8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0)
+      }
+    }
+
+    .form-group input.has-error {
+      border-color: #e87a6a;
+      background: linear-gradient(135deg, var(--bg3) 0%, rgba(232, 98, 74, .03) 100%)
+    }
+
+    .form-group input.has-error:focus {
+      border-color: #e87a6a;
+      box-shadow: 0 0 0 3px rgba(232, 98, 74, .12), inset 0 0 12px rgba(232, 98, 74, .05)
+    }
+
+    .form-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 1.2rem 0
+    }
+
+    .form-sec-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: .85rem
+    }
+
+    /* ══ SCREEN 0: AUTH LOGIN ══ */
+    #screen-auth {
+      background: var(--bg);
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      z-index: 2;
+      padding: 2rem
+    }
+
+    .auth-banner {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border2);
+      background: #fff
+    }
+
+    .auth-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: .3rem
+    }
+
+    .auth-logo span {
+      color: var(--gold)
+    }
+
+    .auth-tagline {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text2);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem
+    }
+
+    .auth-box {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: var(--r3);
+      padding: 2rem
+    }
+
+    .auth-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: .3rem
+    }
+
+    .auth-sub {
+      font-size: 12.5px;
+      color: var(--text2);
+      margin-bottom: 1.5rem;
+      line-height: 1.6
+    }
+
+    .auth-err {
+      background: rgba(232, 98, 74, .12);
+      border: 1px solid rgba(232, 98, 74, .3);
+      border-radius: var(--r);
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: #e87a6a;
+      margin-bottom: 1rem;
+      display: none
+    }
+
+    .pass-wrap {
+      position: relative
+    }
+
+    .pass-wrap input {
+      padding-right: 44px
+    }
+
+    .pass-toggle {
+      position: absolute;
+      right: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text3);
+      font-size: 14px;
+      padding: 2px
+    }
+
+    .pass-toggle:hover {
+      color: var(--text2)
+    }
+
+    .auth-hint {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 1rem
+    }
+
+    .auth-hint span {
+      color: var(--text2)
+    }
+
+    /* ══ SCREEN 1: USER DETAILS ══ */
+    #screen-login {
+      background: var(--bg);
+      position: relative;
+      overflow: hidden
+    }
+
+    .login-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      min-height: 100vh;
+      position: relative;
+      z-index: 2
+    }
+
+    .login-form-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      overflow-y: auto
+    }
+
+    .login-form-inner {
+      width: 100%;
+      max-width: 400px
+    }
+
+    .login-welcome {
+      font-family: 'Syne', sans-serif;
+      font-size: 27px;
+      font-weight: 700;
+      margin-bottom: .4rem
+    }
+
+    .login-welcome em {
+      color: var(--gold);
+      font-style: italic
+    }
+
+    .login-sub {
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 1.75rem;
+      line-height: 1.6
+    }
+
+    /* ══ SCREEN 2: QUIZ ══ */
+    #screen-quiz {
+      background: var(--bg);
+      height: 100vh;
+      overflow: hidden
+    }
+
+    .quiz-topbar {
+      flex-shrink: 0;
+      padding: .85rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(7, 8, 13, .95);
+      backdrop-filter: blur(16px);
+      z-index: 10
+    }
+
+    .quiz-topbar-inner {
+      max-width: 700px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 1rem
+    }
+
+    .quiz-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      flex-shrink: 0
+    }
+
+    .quiz-logo span {
+      color: var(--gold)
+    }
+
+    .prog-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: var(--bg3);
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .prog-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold2));
+      border-radius: 3px;
+      transition: width .6s cubic-bezier(.4, 0, .2, 1)
+    }
+
+    .prog-pct {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold);
+      min-width: 32px;
+      text-align: right;
+      flex-shrink: 0
+    }
+
+    .slide-viewport {
+      flex: 1;
+      overflow: hidden;
+      position: relative
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(50px);
+      transition: opacity .38s ease, transform .38s ease
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(0)
+    }
+
+    .slide.exit-left {
+      opacity: 0;
+      transform: translateX(-50px);
+      pointer-events: none
+    }
+
+    .slide-card {
+      width: 100%;
+      max-width: 640px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r3);
+      padding: 2.25rem 2.25rem 1.75rem;
+      position: relative;
+      overflow: hidden
+    }
+
+    .slide-illus {
+      font-size: 58px;
+      text-align: center;
+      margin-bottom: 1rem;
+      line-height: 1;
+      display: block
+    }
+
+    .q-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.55;
+      color: var(--text);
+      margin-bottom: 1.6rem
+    }
+
+    .opts {
+      display: flex;
+      flex-direction: column;
+      gap: 9px
+    }
+
+    .opt-btn {
+      width: 100%;
+      text-align: left;
+      padding: 13px 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg3);
+      color: var(--text2);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .18s;
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .opt-btn .mk {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border2);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text3);
+      transition: all .18s
+    }
+
+    .opt-btn:hover {
+      border-color: var(--border2);
+      background: var(--bg4);
+      color: var(--text)
+    }
+
+    .opt-btn:hover .mk {
+      border-color: var(--gold);
+      color: var(--gold)
+    }
+
+    .opt-btn.sel {
+      border-color: var(--gold);
+      background: var(--gold-dim);
+      color: var(--text)
+    }
+
+    .opt-btn.sel .mk {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #07080d
+    }
+
+    .opt-ripple {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(212, 168, 67, .4);
+      pointer-events: none;
+      animation: ripple .5s ease-out forwards;
+      transform-origin: center
+    }
+
+    /* ══ SCREEN 3: REPORT ══ */
+    #screen-report {
+      background: var(--bg)
+    }
+
+    .thanks-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem
+    }
+
+    .thanks-card {
+      width: 100%;
+      max-width: 620px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r3);
+      padding: 2.2rem;
+      text-align: center
+    }
+
+    .thanks-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: .5rem
+    }
+
+    .thanks-sub {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.7;
+      margin-bottom: 1.4rem
+    }
+
+    .thanks-note {
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: 1rem
+    }
+
+    /* ══ SCREEN: ACCESS DENIED ══ */
+    #screen-denied {
+      background: var(--bg);
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden
+    }
+
+    .denied-card {
+      width: 100%;
+      max-width: 460px;
+      background: var(--bg2);
+      border: 1px solid rgba(232, 98, 74, 0.35);
+      border-radius: var(--r3);
+      padding: 2.8rem 2.4rem;
+      text-align: center;
+      position: relative;
+      z-index: 2
+    }
+
+    .denied-icon {
+      font-size: 56px;
+      margin-bottom: 1rem;
+      line-height: 1;
+      display: block
+    }
+
+    .denied-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #e8624a;
+      margin-bottom: .5rem
+    }
+
+    .denied-sub {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.7;
+      margin-bottom: 1.8rem
+    }
+
+    .denied-badge {
+      display: inline-block;
+      background: rgba(232, 98, 74, 0.12);
+      border: 1px solid rgba(232, 98, 74, 0.3);
+      border-radius: 50px;
+      padding: 5px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #e8624a;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 1.6rem
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg)
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 3px
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="amb a1"></div>
+  <div class="amb a2"></div>
+  <div class="amb a3"></div>
+
+  <!-- ════════════ SCREEN 0: AUTH LOGIN ════════════ -->
+  <div id="screen-auth" class="screen active">
+    <div class="auth-card au1">
+      <div class="auth-banner"
+        style="background-image:url('assets/Excel.jpeg');background-size:100% 100%;background-position:center;height: 90px;border-radius:10px;">
+      </div>
+      <div class="auth-logo">Excel Mind<span>Pulse</span></div>
+      <div class="auth-tagline">Teaching Competency Assessment of Faculty</div>
+      <div class="auth-box">
+        <div class="auth-title au2">Welcome back 👋</div>
+        <div class="auth-sub au3">Sign in to access your assessment dashboard.</div>
+        <div class="auth-err" id="auth-err">Incorrect username or password. Please try again.</div>
+        <div class="form-group au3">
+          <label>Username</label>
+          <input type="text" id="auth-user" placeholder="Enter username" autocomplete="off">
+        </div>
+        <div class="form-group au4">
+          <label>Password</label>
+          <div class="pass-wrap">
+            <input type="password" id="auth-pass" placeholder="Enter password"
+              onkeydown="if(event.key==='Enter')doAuth()">
+            <button class="pass-toggle" onclick="togglePass()" title="Show/hide password">👁</button>
+          </div>
+        </div>
+        <button class="btn btn-gold au5" style="width:100%;font-size:15px;padding:14px;margin-top:.5rem"
+          onclick="doAuth()">
+          Sign In
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN 1: USER DETAILS ════════════ -->
+  <div id="screen-login" class="screen">
+    <div class="login-layout">
+      <div class="login-form-wrap">
+        <div class="login-form-inner">
+          <div class="login-welcome au1">Your <em>details</em> please</div>
+          <div class="form-sec-lbl au3">Personal info</div>
+          <div class="form-row au3">
+            <div class="form-group">
+              <label>Full Name *</label>
+              <input type="text" id="inp-name" placeholder="Your name" autocomplete="off">
+              <div class="err" id="err-name">Please enter your name.</div>
+            </div>
+            <div class="form-group">
+              <label>Date of Birth *</label>
+              <input type="text" id="inp-dob" placeholder="DD/MM/YYYY" autocomplete="off">
+              <div class="err" id="err-dob">Please enter your DOB (DD/MM/YYYY).</div>
+            </div>
+          </div>
+          <div class="form-row au3">
+            <div class="form-group">
+              <label>Age *</label>
+              <input type="text" id="inp-age" readonly>
+              <div class="err" id="err-age">Valid age (18–80).</div>
+            </div>
+            <fieldset class="form-group">
+              <legend id="gender-legend"
+                style="display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);margin-bottom:7px;">
+                Gender *</legend>
+              <div class="gender-group" role="group" aria-labelledby="gender-legend">
+                <button class="gender-btn" id="gender-male" onclick="pickGender(this,'Male')"
+                  type="button">Male</button>
+                <button class="gender-btn" id="gender-female" onclick="pickGender(this,'Female')"
+                  type="button">Female</button>
+                <button class="gender-btn" id="gender-other" onclick="pickGender(this,'Other')"
+                  type="button">Other</button>
+              </div>
+              <div class="err" id="err-gender">Please select gender.</div>
+            </fieldset>
+          </div>
+          <div class="form-divider au4"></div>
+          <div class="form-sec-lbl au4">Academic info</div>
+          <div class="form-group au4">
+            <label>College / Institution *</label>
+            <select id="inp-college" autocomplete="off">
+              <option value="">-- Select Institution --</option>
+              <option value="Excel Engineering College (AUTONOMOUS)">Excel Engineering College (AUTONOMOUS)</option>
+              <option value="Excel College of Architecture & Planning">Excel College of Architecture & Planning</option>
+              <option value="Excel Polytechnic College">Excel Polytechnic College</option>
+              <option value="Excel College for Commerce & Science">Excel College for Commerce & Science</option>
+              <option value="Excel College of Education">Excel College of Education</option>
+              <option value="Excel Homoeopathy Medical College">Excel Homoeopathy Medical College</option>
+              <option value="Excel Siddha Medical College & Research Centre">Excel Siddha Medical College & Research
+                Centre</option>
+              <option value="Excel Medical College for Naturopathy & Yoga">Excel Medical College for Naturopathy & Yoga
+              </option>
+              <option value="Excel College of Pharmacy">Excel College of Pharmacy</option>
+              <option value="Excel College of Physiotherapy & Research Centre">Excel College of Physiotherapy & Research
+                Centre</option>
+              <option value="Excel Nursing College">Excel Nursing College</option>
+              <option value="Excel Institute of Health Sciences">Excel Institute of Health Sciences</option>
+              <option value="Excel Public School (CBSE)">Excel Public School (CBSE)</option>
+              <option value="Others">Others</option>
+            </select>
+            <input type="text" id="inp-college-other" placeholder="Enter your college/institution name"
+              autocomplete="off" style="display: none; margin-top: 8px;">
+            <div class="err" id="err-college">Please select your institution.</div>
+          </div>
+          <div class="form-group au4">
+            <label>Designation - Department *</label>
+            <input type="text" id="inp-dept" placeholder="e.g. Student - CSE" autocomplete="off">
+            <div class="err" id="err-dept">Please enter your department.</div>
+          </div>
+          <button class="btn btn-gold au5" style="width:100%;font-size:15px;padding:14px" onclick="submitLogin()">
+            Start Assessment
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN 2: QUIZ ════════════ -->
+  <div id="screen-quiz" class="screen">
+    <div class="quiz-topbar">
+      <div class="quiz-topbar-inner">
+        <div class="quiz-logo" style="color:var(--text)">Excel Mind<span style="color:var(--gold)">Pulse</span></div>
+        <div class="prog-bar-bg">
+          <div class="prog-bar-fill" id="prog-fill" style="width:0%"></div>
+        </div>
+        <div class="prog-pct" id="prog-pct">0%</div>
+      </div>
+    </div>
+    <div class="slide-viewport" id="slide-viewport"></div>
+  </div>
+
+  <!-- ════════════ SCREEN 3: THANK YOU ════════════ -->
+  <div id="screen-report" class="screen">
+    <div class="thanks-wrap">
+      <div class="thanks-card au1">
+        <div class="thanks-title">Thank you for attending the test</div>
+        <div class="thanks-sub">
+          Your assessment is complete. Your report PDF is being downloaded automatically.
+        </div>
+        <button class="btn btn-gold" onclick="downloadReport()">Download Report Again</button>
+        <div class="thanks-note">You can close this tab after the download finishes.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN: ACCESS DENIED ════════════ -->
+  <div id="screen-denied" class="screen">
+    <div class="denied-card au1">
+      <span class="denied-icon">🚫</span>
+      <div class="denied-badge">Access Denied</div>
+      <div class="denied-title">Assessment Already Completed</div>
+      <div class="denied-sub">
+        You have already submitted this assessment.<br>
+        Each login session allows only one attempt.<br>
+        Please contact your administrator if you believe this is an error.
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:.5rem">Excel Mind<span
+          style="color:var(--gold)">Pulse</span> &mdash; Teaching Aptitude Assessment Portal</div>
+    </div>
+  </div>
+
+  <script>
+    const Q_ICONS = {
+      1: '😕', 2: '😴', 3: '❓', 4: '📖', 5: '🩹', 6: '🎉', 7: '🙋', 8: '🆕', 9: '🔁', 10: '🚶',
+      11: '🤔', 12: '❌', 13: '🧩', 14: '📋', 15: '⚡', 16: '⏩', 17: '🔬', 18: '📉', 19: '✅', 20: '📰',
+      21: '🗣️', 22: '⏰', 23: '🔊', 24: '🚫', 25: '👊', 26: '😶', 27: '📱', 28: '💢', 29: '😰', 30: '📏',
+      31: '📝', 32: '🤫', 33: '🧠', 34: '⚠️', 35: '💤', 36: '😳', 37: '🌀', 38: '🎚️', 39: '👋', 40: '📄',
+      41: '😢', 42: '😤', 43: '🤐', 44: '😠', 45: '🔋', 46: '🫣', 47: '👨‍👩‍👦', 48: '🪜', 49: '🔥', 50: '😓',
+      51: '💬', 52: '🔄', 53: '💪', 54: '💰', 55: '🏆', 56: '🥱', 57: '😩', 58: '🎤', 59: '📚', 60: '🌙',
+      61: '🎨', 62: '🙊', 63: '🧰', 64: '💡', 65: '🌈', 66: '🌿', 67: '🔃', 68: '🤝', 69: '🖥️', 70: '✨',
+      71: '📽️', 72: '🌐', 73: '📊', 74: '🗓️', 75: '🏃', 76: '📝', 77: '🔎', 78: '🏕️', 79: '🎯', 80: '💻',
+      81: '🎪', 82: '🪞', 83: '⚔️', 84: '🚩', 85: '🧘', 86: '🏛️', 87: '🫶', 88: '🕊️', 89: '🤗', 90: '🧭',
+      91: '🔒', 92: '🎁', 93: '⚖️', 94: '🤫', 95: '📜', 96: '🕐', 97: '🚧', 98: '👀', 99: '📢', 100: '🛑',
+      101: '🐢', 102: '🔌', 103: '📣', 104: '🧪', 105: '🗡️', 106: '📦', 107: '😟', 108: '🚀', 109: '🔍', 110: '🌊',
+      111: '📅', 112: '🎭', 113: '🏫', 114: '✏️', 115: '🎒', 116: '🛤️', 117: '🎊', 118: '🔐', 119: '🔀', 120: '🏁'
+    };
+
+    const Q_ANIMATIONS = {};
+
+    const SECS = [
+      { id: 1, name: 'Teaching Aptitude', color: '#4a8fe8', bg: 'rgba(74,143,232,.12)', icon: '🎓', img: 'assets/section-1-teaching-aptitude.png', qs: Array.from({ length: 10 }, (_, i) => i + 1), reverse: false },
+      { id: 2, name: 'Subject Knowledge & Clarity', color: '#3ec9a7', bg: 'rgba(62,201,167,.12)', icon: '📚', img: 'assets/section-2-subject-knowledge.png', qs: Array.from({ length: 10 }, (_, i) => i + 11), reverse: false },
+      { id: 3, name: 'Classroom Management & Discipline', color: '#d4a843', bg: 'rgba(212,168,67,.12)', icon: '👥', img: 'assets/section-3-classroom-management.png', qs: Array.from({ length: 10 }, (_, i) => i + 21), reverse: false },
+      { id: 4, name: 'Communication Skills', color: '#9b6de8', bg: 'rgba(155,109,232,.12)', icon: '💬', img: 'assets/section-4-communication.png', qs: Array.from({ length: 10 }, (_, i) => i + 31), reverse: false },
+      { id: 5, name: 'Emotional Intelligence', color: '#e8624a', bg: 'rgba(232,98,74,.12)', icon: '❤️', img: 'assets/section-5-emotional-intelligence.png', qs: Array.from({ length: 10 }, (_, i) => i + 41), reverse: false },
+      { id: 6, name: 'Motivation & Passion for Teaching', color: '#f59e0b', bg: 'rgba(245,158,11,.12)', icon: '🔥', img: 'assets/section-6-motivation.png', qs: Array.from({ length: 10 }, (_, i) => i + 51), reverse: false },
+      { id: 7, name: 'Creativity & Innovation in Teaching', color: '#8b5cf6', bg: 'rgba(139,92,246,.12)', icon: '💡', img: 'assets/section-7-creativity.png', qs: Array.from({ length: 10 }, (_, i) => i + 61), reverse: false },
+      { id: 8, name: 'Adaptability & Flexibility', color: '#06b6d4', bg: 'rgba(6,182,212,.12)', icon: '🔄', img: 'assets/section-8-adaptability.png', qs: Array.from({ length: 10 }, (_, i) => i + 71), reverse: false },
+      { id: 9, name: 'Leadership & Role Modeling', color: '#ec4899', bg: 'rgba(236,72,153,.12)', icon: '👑', img: 'assets/section-9-leadership.png', qs: Array.from({ length: 10 }, (_, i) => i + 81), reverse: false },
+      { id: 10, name: 'Professional Ethics & Values', color: '#14b8a6', bg: 'rgba(20,184,166,.12)', icon: '⚖️', img: 'assets/section-10-ethics.png', qs: Array.from({ length: 10 }, (_, i) => i + 91), reverse: false },
+      { id: 11, name: 'Attitude (Optimism, Growth Mindset, Resilience)', color: '#f97316', bg: 'rgba(249,115,22,.12)', icon: '🌟', img: 'assets/section-11-attitude.png', qs: Array.from({ length: 10 }, (_, i) => i + 101), reverse: false },
+      { id: 12, name: 'Responsibility & Commitment', color: '#6366f1', bg: 'rgba(99,102,241,.12)', icon: '✅', img: 'assets/section-12-responsibility.png', qs: Array.from({ length: 10 }, (_, i) => i + 111), reverse: false },
+    ];
+
+    // ══ EAGER IMAGE PRELOADER — loads & compresses all PDF images in background ══
+    const _imgCache = {};
+    const _preloadReady = new Promise(resolve => {
+      const allSrcs = [
+        'assets/Excel.jpeg',
+        ...['photos/level1.jpeg', 'photos/level2.jpeg', 'photos/level3.jpeg', 'photos/level4.jpeg', 'photos/level5.jpeg', 'photos/level6.jpeg', 'photos/level7.jpeg', 'photos/level8.jpeg', 'photos/level9.jpeg'],
+        ...SECS.map(s => s.img)
+      ];
+      let done = 0;
+      const total = allSrcs.length;
+      allSrcs.forEach(src => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const maxW = 300;
+            const scale = img.width > maxW ? maxW / img.width : 1;
+            const w = Math.round(img.width * scale);
+            const h = Math.round(img.height * scale);
+            const c = document.createElement('canvas');
+            c.width = w; c.height = h;
+            const ctx = c.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            _imgCache[src] = { dataUrl: c.toDataURL('image/jpeg', 0.7), w: img.width, h: img.height };
+          } catch (e) { _imgCache[src] = null; }
+          if (++done >= total) resolve();
+        };
+        img.onerror = () => { _imgCache[src] = null; if (++done >= total) resolve(); };
+        img.src = src;
+      });
+      setTimeout(resolve, 15000);
+    });
+
+    const QUESTIONS = [
+      { id: 1, sec: 1, text: 'You are teaching a new concept, and half the students look confused. What would you do?', opts: [{ t: 'I would continue with the lesson while briefly revisiting the concept.', s: 1 }, { t: 'I would repeat the explanation with slight clarification.', s: 2 }, { t: 'I would check understanding and re-explain key points.', s: 3 }, { t: 'I would simplify the concept using alternative examples.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 2, sec: 1, text: 'You notice students are not interested in your lesson. How would you handle this?', opts: [{ t: 'I would continue while making minimal effort to regain attention.', s: 1 }, { t: 'I would slightly adjust my tone or pace.', s: 2 }, { t: 'I would include relevant examples to regain interest.', s: 3 }, { t: 'I would introduce questions or small interactions.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 3, sec: 1, text: 'A student asks, "Why should we study this topic?" What\'s your reaction?', opts: [{ t: 'I would give a general answer and continue the lesson.', s: 1 }, { t: 'I would briefly explain its importance.', s: 2 }, { t: 'I would relate the topic to practical applications.', s: 3 }, { t: 'I would connect it to real-life scenarios and student goals.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 4, sec: 1, text: 'You are asked to teach a subject area that is not your favorite. How would you approach it?', opts: [{ t: 'I would teach it as required without much change.', s: 1 }, { t: 'I would prepare adequately and deliver the content.', s: 2 }, { t: 'I would try to make it interesting for students.', s: 3 }, { t: 'I would explore creative ways to engage students.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 5, sec: 1, text: 'Your school assigns you to take remedial classes for weak students. What do you do?', opts: [{ t: 'I would conduct the class as per instructions.', s: 1 }, { t: 'I would focus on basic revision.', s: 2 }, { t: 'I would identify student difficulties and address them.', s: 3 }, { t: 'I would use different methods to support learning.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 6, sec: 1, text: 'When you succeed in explaining a difficult concept clearly, how do you feel?', opts: [{ t: 'I feel satisfied and move on.', s: 1 }, { t: 'I feel happy about completing the task.', s: 2 }, { t: 'I feel encouraged to continue teaching effectively.', s: 3 }, { t: 'I feel motivated to improve further.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 7, sec: 1, text: 'Students are hesitant to ask questions in your class. What will you do?', opts: [{ t: 'I would wait for them to ask questions.', s: 1 }, { t: 'I would encourage them occasionally.', s: 2 }, { t: 'I would create opportunities for questions.', s: 3 }, { t: 'I would build a comfortable environment for interaction.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 8, sec: 1, text: 'A new teaching method is introduced in your school. What\'s your response?', opts: [{ t: 'I would continue with my existing method.', s: 1 }, { t: 'I would try it if required.', s: 2 }, { t: 'I would learn and apply it gradually.', s: 3 }, { t: 'I would adopt and adapt it effectively.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 9, sec: 1, text: 'If a student doesn\'t understand after your first explanation, what do you do?', opts: [{ t: 'I would repeat the same explanation.', s: 1 }, { t: 'I would explain again with slight variation.', s: 2 }, { t: 'I would clarify using different examples.', s: 3 }, { t: 'I would adjust my explanation based on the student\'s need.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 10, sec: 1, text: 'How do you usually feel before going to class?', opts: [{ t: 'I feel it is a routine responsibility.', s: 1 }, { t: 'I feel prepared to conduct the session.', s: 2 }, { t: 'I feel interested in delivering the lesson.', s: 3 }, { t: 'I feel motivated to engage students.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 11, sec: 2, text: 'A student asks a difficult question that you don\'t know the answer to. How would you handle it?', opts: [{ t: 'I would give a general response and continue the lesson.', s: 1 }, { t: 'I would acknowledge the question and provide a partial explanation.', s: 2 }, { t: 'I would admit I\'m not sure and try to relate it to known concepts.', s: 3 }, { t: 'I would honestly admit it and promise to check and respond later.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 12, sec: 2, text: 'While teaching, you realize you made a mistake in explaining a concept. What do you do?', opts: [{ t: 'I would continue without addressing it immediately.', s: 1 }, { t: 'I would correct it briefly and move on.', s: 2 }, { t: 'I would acknowledge and clarify the mistake.', s: 3 }, { t: 'I would explain the correction clearly with proper reasoning.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 13, sec: 2, text: 'Your students find a particular topic very difficult to understand. How would you teach it?', opts: [{ t: 'I would continue teaching as per plan.', s: 1 }, { t: 'I would repeat the explanation again.', s: 2 }, { t: 'I would simplify the topic using basic examples.', s: 3 }, { t: 'I would use multiple methods (visuals, examples, analogies).', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 14, sec: 2, text: 'When preparing for a class, how do you usually approach the content?', opts: [{ t: 'I follow the textbook or notes directly.', s: 1 }, { t: 'I prepare key points before the class.', s: 2 }, { t: 'I organize content for better clarity.', s: 3 }, { t: 'I include examples and supporting materials.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 15, sec: 2, text: 'A student challenges your explanation with an alternative view. What would you do?', opts: [{ t: 'I would maintain my explanation and continue.', s: 1 }, { t: 'I would acknowledge briefly and proceed.', s: 2 }, { t: 'I would listen and respond with clarification.', s: 3 }, { t: 'I would discuss the alternative view and compare perspectives.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 16, sec: 2, text: 'Students say your explanation is "too fast." How do you respond?', opts: [{ t: 'I would continue at my pace.', s: 1 }, { t: 'I would slow down slightly.', s: 2 }, { t: 'I would adjust pace and check understanding.', s: 3 }, { t: 'I would modify my explanation and include pauses.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 17, sec: 2, text: 'You find a new discovery or update in your subject field. How do you treat it?', opts: [{ t: 'I note it but continue with existing content.', s: 1 }, { t: 'I mention it briefly in class.', s: 2 }, { t: 'I include it as additional information.', s: 3 }, { t: 'I integrate it into my teaching content.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 18, sec: 2, text: 'If students repeatedly perform poorly in your subject, what\'s your first step?', opts: [{ t: 'I continue teaching as planned.', s: 1 }, { t: 'I review the content again.', s: 2 }, { t: 'I analyze common mistakes.', s: 3 }, { t: 'I adjust teaching methods based on gaps.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 19, sec: 2, text: 'When explaining a tough concept, how do you usually check if students understood?', opts: [{ t: 'I assume they understood if there are no questions.', s: 1 }, { t: 'I ask a few general questions.', s: 2 }, { t: 'I check understanding through responses.', s: 3 }, { t: 'I use targeted questions or quick assessments.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 20, sec: 2, text: 'How do you keep your subject knowledge updated?', opts: [{ t: 'I rely on existing knowledge.', s: 1 }, { t: 'I occasionally read or refer materials.', s: 2 }, { t: 'I regularly update through books/resources.', s: 3 }, { t: 'I follow latest developments and trends.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 21, sec: 3, text: 'During your lesson, two students at the back keep chatting and disturbing others. How do you handle it?', opts: [{ t: 'I would continue teaching while expecting them to settle down.', s: 1 }, { t: 'I would give a brief verbal reminder to maintain silence.', s: 2 }, { t: 'I would address them directly and bring their focus back to the lesson.', s: 3 }, { t: 'I would involve them in the lesson to redirect their attention.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 22, sec: 3, text: 'A student constantly comes late to your class. What is your approach?', opts: [{ t: 'I would allow it and continue the class.', s: 1 }, { t: 'I would remind the student about punctuality.', s: 2 }, { t: 'I would speak to the student about the issue.', s: 3 }, { t: 'I would understand the reason and guide improvement.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 23, sec: 3, text: 'While conducting an activity, the class becomes noisy and chaotic. What do you do?', opts: [{ t: 'I would continue and wait for them to settle.', s: 1 }, { t: 'I would ask them to reduce noise.', s: 2 }, { t: 'I would pause the activity and regain control.', s: 3 }, { t: 'I would reorganize the activity with clear instructions.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 24, sec: 3, text: 'A student refuses to follow your instructions during a group task. How do you respond?', opts: [{ t: 'I would ignore and continue.', s: 1 }, { t: 'I would repeat the instructions.', s: 2 }, { t: 'I would address the student directly.', s: 3 }, { t: 'I would understand the reason and guide participation.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 25, sec: 3, text: 'You notice bullying behavior among students in your classroom. How do you intervene?', opts: [{ t: 'I would observe and not intervene immediately.', s: 1 }, { t: 'I would give a general warning to the class.', s: 2 }, { t: 'I would address the behavior directly.', s: 3 }, { t: 'I would counsel the students involved.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 26, sec: 3, text: 'A group of students is consistently disengaged during lessons. What action will you take?', opts: [{ t: 'I would continue teaching as usual.', s: 1 }, { t: 'I would encourage them occasionally.', s: 2 }, { t: 'I would try to involve them during the lesson.', s: 3 }, { t: 'I would understand their reasons and adapt teaching.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 27, sec: 3, text: 'How do you handle a class where students frequently use mobile phones during lessons?', opts: [{ t: 'I would ignore it and continue teaching.', s: 1 }, { t: 'I would remind them not to use phones.', s: 2 }, { t: 'I would enforce basic rules regarding usage.', s: 3 }, { t: 'I would manage usage while keeping students engaged.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 28, sec: 3, text: 'A student openly challenges your authority in front of the class. What do you do?', opts: [{ t: 'I would ignore and continue teaching.', s: 1 }, { t: 'I would respond briefly and move on.', s: 2 }, { t: 'I would address the situation calmly.', s: 3 }, { t: 'I would handle it respectfully and maintain authority.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 29, sec: 3, text: 'Your students are preparing for an important exam, but they appear stressed and restless in class. How do you respond?', opts: [{ t: 'I would continue with the lesson as planned.', s: 1 }, { t: 'I would acknowledge their stress briefly.', s: 2 }, { t: 'I would provide reassurance and guidance.', s: 3 }, { t: 'I would adjust teaching to support them emotionally.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 30, sec: 3, text: 'You want to establish discipline in your classroom from day one. What is your approach?', opts: [{ t: 'I would expect students to follow rules naturally.', s: 1 }, { t: 'I would state basic rules.', s: 2 }, { t: 'I would explain expectations clearly.', s: 3 }, { t: 'I would set structure and reinforce consistently.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 31, sec: 4, text: 'Students look confused about your activity instructions. How do you respond?', opts: [{ t: 'I would repeat the same instructions once more.', s: 1 }, { t: 'I would explain the instructions again with slight clarification.', s: 2 }, { t: 'I would break down the instructions into simpler steps.', s: 3 }, { t: 'I would demonstrate the activity along with explanation.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 32, sec: 4, text: 'A student hesitates to ask a doubt in class. You notice their struggle.', opts: [{ t: 'I would wait for the student to ask.', s: 1 }, { t: 'I would encourage them to ask questions.', s: 2 }, { t: 'I would gently invite them to share their doubt.', s: 3 }, { t: 'I would create a comfortable space for them to express their concern.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 33, sec: 4, text: 'You are teaching a difficult topic. How do you simplify?', opts: [{ t: 'I would explain it as per the content.', s: 1 }, { t: 'I would repeat the explanation more slowly.', s: 2 }, { t: 'I would use simple examples to explain.', s: 3 }, { t: 'I would use analogies, visuals, or real-life connections.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 34, sec: 4, text: 'A student misunderstood your instruction and made a mistake.', opts: [{ t: 'I would point out the mistake and move on.', s: 1 }, { t: 'I would correct the student briefly.', s: 2 }, { t: 'I would explain the correct approach.', s: 3 }, { t: 'I would clarify the misunderstanding and guide the student.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 35, sec: 4, text: 'Students seem disengaged during your class. What do you do?', opts: [{ t: 'I would continue the lesson as planned.', s: 1 }, { t: 'I would try to regain attention briefly.', s: 2 }, { t: 'I would include examples to regain interest.', s: 3 }, { t: 'I would involve students through interaction.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 36, sec: 4, text: 'A student answers incorrectly in front of peers.', opts: [{ t: 'I would say the answer is incorrect and move on.', s: 1 }, { t: 'I would correct the answer briefly.', s: 2 }, { t: 'I would explain the correct answer.', s: 3 }, { t: 'I would guide the student to understand the mistake.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 37, sec: 4, text: 'During a discussion, a student gives a long unclear explanation.', opts: [{ t: 'I would move to another student.', s: 1 }, { t: 'I would briefly summarize and continue.', s: 2 }, { t: 'I would help clarify their point.', s: 3 }, { t: 'I would guide the student to express more clearly.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 38, sec: 4, text: 'Your class has mixed ability students. How do you explain a concept?', opts: [{ t: 'I would teach at a general level.', s: 1 }, { t: 'I would slightly adjust my explanation.', s: 2 }, { t: 'I would include examples for better understanding.', s: 3 }, { t: 'I would use different methods to address varied levels.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 39, sec: 4, text: 'On the first day of class, how do you communicate?', opts: [{ t: 'I would introduce the subject and begin teaching.', s: 1 }, { t: 'I would give a brief introduction and outline.', s: 2 }, { t: 'I would explain expectations and course structure.', s: 3 }, { t: 'I would interact and build initial connection with students.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 40, sec: 4, text: 'Students say your notes are hard to follow. What do you do?', opts: [{ t: 'I would continue using the same notes.', s: 1 }, { t: 'I would make slight adjustments.', s: 2 }, { t: 'I would simplify the notes.', s: 3 }, { t: 'I would restructure the content for clarity.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 41, sec: 5, text: 'A student suddenly bursts into tears during class because of personal issues. What would you do?', opts: [{ t: 'I would continue the class while allowing the student some time.', s: 1 }, { t: 'I would briefly check on the student and continue the session.', s: 2 }, { t: 'I would pause and offer support to the student.', s: 3 }, { t: 'I would address the situation sensitively and ensure the student feels comfortable.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 42, sec: 5, text: 'During a staff meeting, a colleague criticizes your teaching style. How do you respond?', opts: [{ t: 'I would ignore the comment and move on.', s: 1 }, { t: 'I would respond briefly to defend my approach.', s: 2 }, { t: 'I would listen and consider the feedback.', s: 3 }, { t: 'I would reflect on it and respond constructively.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 43, sec: 5, text: 'You notice a usually active student has become quiet and withdrawn. What is your approach?', opts: [{ t: 'I would assume it is temporary and continue.', s: 1 }, { t: 'I would observe the student over time.', s: 2 }, { t: 'I would check on the student casually.', s: 3 }, { t: 'I would speak with the student to understand the issue.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 44, sec: 5, text: 'A student openly challenges your authority in class. How do you manage it?', opts: [{ t: 'I would ignore it and continue teaching.', s: 1 }, { t: 'I would respond briefly and move on.', s: 2 }, { t: 'I would address the situation calmly.', s: 3 }, { t: 'I would handle it respectfully while maintaining authority.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 45, sec: 5, text: 'After a long day, you feel emotionally drained but still have one more class. How do you handle it?', opts: [{ t: 'I would conduct the class without much change.', s: 1 }, { t: 'I would try to manage my energy and continue.', s: 2 }, { t: 'I would prepare mentally before starting the class.', s: 3 }, { t: 'I would consciously energize myself and engage students.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 46, sec: 5, text: 'A student makes a mistake during a presentation and looks embarrassed. What do you do?', opts: [{ t: 'I would correct the mistake and continue.', s: 1 }, { t: 'I would briefly reassure the student.', s: 2 }, { t: 'I would support the student and guide improvement.', s: 3 }, { t: 'I would respond positively and help them regain confidence.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 47, sec: 5, text: 'A parent is upset about their child\'s poor grades and blames your teaching. How would you react?', opts: [{ t: 'I would defend my teaching approach.', s: 1 }, { t: 'I would explain the situation briefly.', s: 2 }, { t: 'I would listen and clarify the facts.', s: 3 }, { t: 'I would address concerns calmly and discuss improvement strategies.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 48, sec: 5, text: 'A colleague gets promoted while you do not. What is your emotional response?', opts: [{ t: 'I feel disappointed and compare myself.', s: 1 }, { t: 'I accept it but feel slightly discouraged.', s: 2 }, { t: 'I acknowledge it and reflect on my growth.', s: 3 }, { t: 'I stay positive and focus on self-improvement.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 49, sec: 5, text: 'A heated debate breaks out among students in your class. What do you do?', opts: [{ t: 'I would stop the discussion immediately.', s: 1 }, { t: 'I would calm the students and continue.', s: 2 }, { t: 'I would moderate the discussion.', s: 3 }, { t: 'I would guide the discussion constructively.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 50, sec: 5, text: 'You feel stressed about upcoming workload and deadlines. How do you cope?', opts: [{ t: 'I continue without managing stress.', s: 1 }, { t: 'I try to manage tasks as they come.', s: 2 }, { t: 'I plan and organize my work.', s: 3 }, { t: 'I prioritize tasks and manage stress consciously.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 51, sec: 6, text: 'A student asks you why you chose teaching as a profession. How do you respond?', opts: [{ t: 'I would give a general or practical reason.', s: 1 }, { t: 'I would share a simple reason for choosing teaching.', s: 2 }, { t: 'I would explain my interest in teaching.', s: 3 }, { t: 'I would share meaningful reasons and experiences.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 52, sec: 6, text: 'After multiple failed attempts to make students understand a tough topic, you...', opts: [{ t: 'I would move ahead with the syllabus.', s: 1 }, { t: 'I would try explaining once more.', s: 2 }, { t: 'I would attempt different examples.', s: 3 }, { t: 'I would change my teaching approach.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 53, sec: 6, text: 'During a challenging semester, how do you keep yourself motivated?', opts: [{ t: 'I continue with my routine.', s: 1 }, { t: 'I try to stay positive.', s: 2 }, { t: 'I focus on completing my responsibilities.', s: 3 }, { t: 'I remind myself of my purpose and goals.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 54, sec: 6, text: 'If teaching was not financially rewarding, what would you do?', opts: [{ t: 'I would consider other options.', s: 1 }, { t: 'I would continue with some hesitation.', s: 2 }, { t: 'I would stay if I find satisfaction in teaching.', s: 3 }, { t: 'I would continue with commitment to the profession.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 55, sec: 6, text: 'When you see your students succeed, you feel...', opts: [{ t: 'Satisfied that the task is completed.', s: 1 }, { t: 'Happy about their achievement.', s: 2 }, { t: 'Encouraged by their success.', s: 3 }, { t: 'Proud of their growth.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 56, sec: 6, text: 'If faced with a class of disinterested students, how would you act?', opts: [{ t: 'I would continue teaching as planned.', s: 1 }, { t: 'I would try to regain attention briefly.', s: 2 }, { t: 'I would include examples to improve interest.', s: 3 }, { t: 'I would involve students actively.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 57, sec: 6, text: 'Your colleagues discuss their frustration with students\' lack of discipline. You...', opts: [{ t: 'I would agree and share similar concerns.', s: 1 }, { t: 'I would listen and acknowledge.', s: 2 }, { t: 'I would suggest possible solutions.', s: 3 }, { t: 'I would encourage a positive approach.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 58, sec: 6, text: 'You are given an opportunity to lead a teaching innovation workshop. How do you react?', opts: [{ t: 'I would feel hesitant to take it up.', s: 1 }, { t: 'I would consider participating.', s: 2 }, { t: 'I would accept with preparation.', s: 3 }, { t: 'I would take it as a growth opportunity.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 59, sec: 6, text: 'If you are assigned to teach a subject outside your expertise, you...', opts: [{ t: 'I would manage with basic preparation.', s: 1 }, { t: 'I would prepare adequately.', s: 2 }, { t: 'I would learn and improve gradually.', s: 3 }, { t: 'I would invest time to build strong understanding.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 60, sec: 6, text: 'At the end of a tiring day, a student approaches you for help. You...', opts: [{ t: 'I would ask them to come another time.', s: 1 }, { t: 'I would respond briefly.', s: 2 }, { t: 'I would help if time permits.', s: 3 }, { t: 'I would give time and support the student.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 61, sec: 7, text: 'You are teaching a difficult concept that students often find boring. How would you handle it?', opts: [{ t: 'I would teach the concept as per the syllabus.', s: 1 }, { t: 'I would try to make the explanation slightly interesting.', s: 2 }, { t: 'I would include examples to improve understanding.', s: 3 }, { t: 'I would use engaging methods like visuals or storytelling.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 62, sec: 7, text: 'Students are not responding to your lecture. What is your approach?', opts: [{ t: 'I would continue the lecture as planned.', s: 1 }, { t: 'I would try to get some responses occasionally.', s: 2 }, { t: 'I would ask questions to involve students.', s: 3 }, { t: 'I would introduce interactive elements.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 63, sec: 7, text: 'The school asks you to teach a topic with limited teaching resources. What do you do?', opts: [{ t: 'I would teach using available basic methods.', s: 1 }, { t: 'I would manage with minimal adjustments.', s: 2 }, { t: 'I would use simple examples and explanations.', s: 3 }, { t: 'I would create alternative resources or aids.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 64, sec: 7, text: 'How do you encourage students to think outside the box?', opts: [{ t: 'I focus on completing the syllabus.', s: 1 }, { t: 'I occasionally ask open-ended questions.', s: 2 }, { t: 'I encourage students to share ideas.', s: 3 }, { t: 'I design activities that promote creative thinking.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 65, sec: 7, text: 'A student presents a unique solution that is different from the textbook. What would be your reaction?', opts: [{ t: 'I would correct it based on the textbook.', s: 1 }, { t: 'I would acknowledge it briefly.', s: 2 }, { t: 'I would evaluate and explain its relevance.', s: 3 }, { t: 'I would appreciate and discuss the idea.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 66, sec: 7, text: 'You are asked to conduct a special class on environmental awareness. How do you plan it?', opts: [{ t: 'I would deliver a basic lecture.', s: 1 }, { t: 'I would include some examples.', s: 2 }, { t: 'I would make it informative with relevant content.', s: 3 }, { t: 'I would include activities or discussions.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 67, sec: 7, text: 'How do you handle curriculum repetition across years?', opts: [{ t: 'I teach the same way every year.', s: 1 }, { t: 'I make minor changes.', s: 2 }, { t: 'I improve explanations gradually.', s: 3 }, { t: 'I update methods and examples.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 68, sec: 7, text: 'A colleague asks for your input in designing a new teaching method. How do you contribute?', opts: [{ t: 'I provide minimal input.', s: 1 }, { t: 'I share basic ideas.', s: 2 }, { t: 'I contribute useful suggestions.', s: 3 }, { t: 'I actively collaborate and refine ideas.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 69, sec: 7, text: 'Technology is introduced in your classroom (e.g., smartboards, apps). What do you do?', opts: [{ t: 'I continue with traditional methods.', s: 1 }, { t: 'I use it occasionally.', s: 2 }, { t: 'I learn and try to use it.', s: 3 }, { t: 'I integrate it into teaching.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 70, sec: 7, text: 'How do you motivate students to express creative ideas?', opts: [{ t: 'I focus on correct answers.', s: 1 }, { t: 'I allow ideas occasionally.', s: 2 }, { t: 'I encourage students to share.', s: 3 }, { t: 'I create opportunities for expression.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 71, sec: 8, text: 'Midway through your planned lecture, the projector stops working. Students are waiting. What would you do?', opts: [{ t: 'I would pause and wait for the issue to be resolved.', s: 1 }, { t: 'I would continue with basic explanation without using visuals.', s: 2 }, { t: 'I would adjust and explain using alternative methods.', s: 3 }, { t: 'I would actively engage students while continuing the lesson.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 72, sec: 8, text: 'The school introduces a new digital learning platform you\'re unfamiliar with. How do you respond?', opts: [{ t: 'I would prefer to continue with my existing methods.', s: 1 }, { t: 'I would try using it if required.', s: 2 }, { t: 'I would learn and gradually adopt it.', s: 3 }, { t: 'I would actively explore and integrate it into my teaching.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 73, sec: 8, text: 'A lesson plan isn\'t working as expected; students look disengaged. What\'s your action?', opts: [{ t: 'I would continue with the planned lesson.', s: 1 }, { t: 'I would try minor adjustments.', s: 2 }, { t: 'I would modify parts of the lesson.', s: 3 }, { t: 'I would change my approach to re-engage students.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 74, sec: 8, text: 'A sudden timetable change requires you to handle an extra class of a subject you don\'t usually teach. How do you respond?', opts: [{ t: 'I would handle it with minimal preparation.', s: 1 }, { t: 'I would prepare basic content.', s: 2 }, { t: 'I would prepare adequately and manage the class.', s: 3 }, { t: 'I would put effort to make the session effective.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 75, sec: 8, text: 'While teaching, some students request to learn through an activity instead of a lecture. What do you do?', opts: [{ t: 'I would continue with the lecture.', s: 1 }, { t: 'I would consider it but proceed as planned.', s: 2 }, { t: 'I would include a small activity.', s: 3 }, { t: 'I would incorporate activity-based learning.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 76, sec: 8, text: 'A school decides to implement a new evaluation system. How do you react?', opts: [{ t: 'I would prefer the existing system.', s: 1 }, { t: 'I would follow the new system as required.', s: 2 }, { t: 'I would understand and adapt gradually.', s: 3 }, { t: 'I would actively learn and implement it.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 77, sec: 8, text: 'A student raises a very relevant question that isn\'t part of the curriculum. How do you respond?', opts: [{ t: 'I would focus only on the syllabus.', s: 1 }, { t: 'I would briefly acknowledge it.', s: 2 }, { t: 'I would address it briefly.', s: 3 }, { t: 'I would connect it with the topic.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 78, sec: 8, text: 'Mid-lesson, you\'re informed your class must shift outdoors due to maintenance. What do you do?', opts: [{ t: 'I would pause the class until settled.', s: 1 }, { t: 'I would continue with minimal adjustment.', s: 2 }, { t: 'I would reorganize and continue the lesson.', s: 3 }, { t: 'I would adapt the teaching method to suit the environment.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 79, sec: 8, text: 'During an activity, students come up with an idea that\'s different from your instructions but still relevant. What\'s your action?', opts: [{ t: 'I would ask them to follow original instructions.', s: 1 }, { t: 'I would acknowledge but stick to the plan.', s: 2 }, { t: 'I would allow limited flexibility.', s: 3 }, { t: 'I would encourage and guide their idea.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 80, sec: 8, text: 'Unexpectedly, you\'re asked to teach online instead of offline for a week. How would you handle it?', opts: [{ t: 'I would continue with basic delivery online.', s: 1 }, { t: 'I would manage with limited changes.', s: 2 }, { t: 'I would prepare and adapt to online teaching.', s: 3 }, { t: 'I would use tools and strategies for engagement.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 81, sec: 9, text: 'During a school event, your colleagues and students look to you for guidance. How do you respond?', opts: [{ t: 'I would support only when required.', s: 1 }, { t: 'I would offer basic guidance when asked.', s: 2 }, { t: 'I would assist and help coordinate activities.', s: 3 }, { t: 'I would take initiative and guide others effectively.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 82, sec: 9, text: 'A student constantly seeks to imitate your behavior. What do you do?', opts: [{ t: 'I continue as usual without much thought.', s: 1 }, { t: 'I am aware but do not act differently.', s: 2 }, { t: 'I become mindful of my actions.', s: 3 }, { t: 'I consciously model positive behaviour.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 83, sec: 9, text: 'When a conflict arises between two students, how do you handle it?', opts: [{ t: 'I let them resolve it themselves.', s: 1 }, { t: 'I intervene briefly to stop the issue.', s: 2 }, { t: 'I listen to both sides and address it.', s: 3 }, { t: 'I guide them towards a fair resolution.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 84, sec: 9, text: 'You are asked to lead a new teaching initiative. What is your approach?', opts: [{ t: 'I would participate only if required.', s: 1 }, { t: 'I would accept with basic involvement.', s: 2 }, { t: 'I would contribute actively.', s: 3 }, { t: 'I would plan and execute effectively.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 85, sec: 9, text: 'Students observe how you react when under pressure. How do you ensure you\'re a role model?', opts: [{ t: 'I focus on completing the task.', s: 1 }, { t: 'I try to manage my reactions.', s: 2 }, { t: 'I stay calm and composed.', s: 3 }, { t: 'I consciously respond in a balanced way.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 86, sec: 9, text: 'In a staff meeting, your colleagues resist a new policy. How do you respond?', opts: [{ t: 'I remain silent and observe.', s: 1 }, { t: 'I share my opinion briefly.', s: 2 }, { t: 'I discuss concerns constructively.', s: 3 }, { t: 'I help clarify and encourage understanding.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 87, sec: 9, text: 'A fellow teacher struggles with classroom control. How do you help?', opts: [{ t: 'I focus on my own responsibilities.', s: 1 }, { t: 'I offer basic suggestions.', s: 2 }, { t: 'I share my experience.', s: 3 }, { t: 'I guide them with practical strategies.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 88, sec: 9, text: 'Students look up to you for ethical conduct. What do you demonstrate?', opts: [{ t: 'I follow rules as required.', s: 1 }, { t: 'I maintain basic professionalism.', s: 2 }, { t: 'I act responsibly and fairly.', s: 3 }, { t: 'I consciously demonstrate integrity.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 89, sec: 9, text: 'A new teacher joins the staff and feels isolated. What do you do?', opts: [{ t: 'I let them adjust on their own.', s: 1 }, { t: 'I greet and interact occasionally.', s: 2 }, { t: 'I include them in conversations.', s: 3 }, { t: 'I support and guide them.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 90, sec: 9, text: 'Students ask you about career guidance beyond academics. How do you respond?', opts: [{ t: 'I provide basic or general advice.', s: 1 }, { t: 'I share limited guidance.', s: 2 }, { t: 'I give useful suggestions based on knowledge.', s: 3 }, { t: 'I guide them based on their interests and goals.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 91, sec: 10, text: 'You accidentally receive confidential student marks before the official announcement. A colleague asks you to share them.', opts: [{ t: 'I would consider sharing informally.', s: 1 }, { t: 'I would hesitate but not act immediately.', s: 2 }, { t: 'I would avoid sharing and stay neutral.', s: 3 }, { t: 'I would clearly refuse to share.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 92, sec: 10, text: 'A parent offers you an expensive gift for giving special attention to their child.', opts: [{ t: 'I would consider accepting it.', s: 1 }, { t: 'I would feel uncomfortable but not respond firmly.', s: 2 }, { t: 'I would politely decline.', s: 3 }, { t: 'I would refuse and explain fairness.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 93, sec: 10, text: 'You notice a fellow teacher showing favoritism in grading.', opts: [{ t: 'I would ignore the situation.', s: 1 }, { t: 'I would observe without taking action.', s: 2 }, { t: 'I would reflect but remain neutral.', s: 3 }, { t: 'I would address it professionally.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 94, sec: 10, text: 'A student confides about personal struggles but asks you not to tell anyone.', opts: [{ t: 'I would keep it completely to myself.', s: 1 }, { t: 'I would hesitate about what to do.', s: 2 }, { t: 'I would support the student while being cautious.', s: 3 }, { t: 'I would handle it sensitively and consider appropriate support.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 95, sec: 10, text: 'You find out an answer key has leaked before an exam.', opts: [{ t: 'I would ignore and continue.', s: 1 }, { t: 'I would feel concerned but not act immediately.', s: 2 }, { t: 'I would verify the situation.', s: 3 }, { t: 'I would report it to the concerned authority.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 96, sec: 10, text: 'Your close friend is a teacher who often arrives late and neglects duties.', opts: [{ t: 'I would ignore due to personal relationship.', s: 1 }, { t: 'I would feel uncomfortable addressing it.', s: 2 }, { t: 'I would casually mention it.', s: 3 }, { t: 'I would discuss it honestly and support improvement.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 97, sec: 10, text: 'You are asked to implement a teaching method you believe is not ethical for students.', opts: [{ t: 'I would follow instructions without question.', s: 1 }, { t: 'I would feel unsure but comply.', s: 2 }, { t: 'I would consider the situation carefully.', s: 3 }, { t: 'I would raise concerns appropriately.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 98, sec: 10, text: 'During exams, you notice students cheating.', opts: [{ t: 'I would ignore it to avoid disruption.', s: 1 }, { t: 'I would give a general warning.', s: 2 }, { t: 'I would address the situation carefully.', s: 3 }, { t: 'I would take action as per rules.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 99, sec: 10, text: 'You are invited to post negative comments about your institution on social media by a group of staff.', opts: [{ t: 'I would join in expressing concerns publicly.', s: 1 }, { t: 'I would consider participating.', s: 2 }, { t: 'I would avoid involvement.', s: 3 }, { t: 'I would choose professional ways to address issues.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 100, sec: 10, text: 'You are given a task where plagiarism is an easy shortcut.', opts: [{ t: 'I would use the shortcut.', s: 1 }, { t: 'I would consider it to save time.', s: 2 }, { t: 'I would try to avoid it.', s: 3 }, { t: 'I would complete the work ethically.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 101, sec: 11, text: 'A student in your class repeatedly struggles despite your guidance. How do you respond?', opts: [{ t: 'I would continue teaching and expect improvement over time.', s: 1 }, { t: 'I would provide additional explanation when needed.', s: 2 }, { t: 'I would try different examples or methods.', s: 3 }, { t: 'I would analyze the difficulty and adapt my teaching.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 102, sec: 11, text: 'You prepared a detailed lesson but technology fails (projector/Internet). What do you do?', opts: [{ t: 'I would pause and wait for the issue to be resolved.', s: 1 }, { t: 'I would continue with limited explanation.', s: 2 }, { t: 'I would adjust using basic alternatives.', s: 3 }, { t: 'I would modify my approach to maintain engagement.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 103, sec: 11, text: 'After receiving constructive criticism from your HOD, you would:', opts: [{ t: 'I would feel uncomfortable and move on.', s: 1 }, { t: 'I would acknowledge it but not act immediately.', s: 2 }, { t: 'I would reflect on the feedback.', s: 3 }, { t: 'I would apply the feedback for improvement.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 104, sec: 11, text: 'You attempted a new teaching activity, but it failed. Your reaction is:', opts: [{ t: 'I would avoid trying it again.', s: 1 }, { t: 'I would feel discouraged.', s: 2 }, { t: 'I would reflect on what went wrong.', s: 3 }, { t: 'I would modify and try again.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 105, sec: 11, text: 'A student challenges your authority in class. How do you handle it?', opts: [{ t: 'I would ignore it and continue teaching.', s: 1 }, { t: 'I would respond briefly and move on.', s: 2 }, { t: 'I would address the situation calmly.', s: 3 }, { t: 'I would handle it respectfully while maintaining control.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 106, sec: 11, text: 'When workload and deadlines pile up, you:', opts: [{ t: 'I continue without managing stress.', s: 1 }, { t: 'I try to complete tasks as they come.', s: 2 }, { t: 'I plan and organize my work.', s: 3 }, { t: 'I prioritize tasks effectively.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 107, sec: 11, text: 'If a student fails in your subject despite effort, your response is:', opts: [{ t: 'I would accept it and move on.', s: 1 }, { t: 'I would feel concerned but not act further.', s: 2 }, { t: 'I would review the situation.', s: 3 }, { t: 'I would identify gaps and support improvement.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 108, sec: 11, text: 'Colleagues resist your idea for an innovative teaching method. How do you react?', opts: [{ t: 'I would drop the idea.', s: 1 }, { t: 'I would hesitate to pursue it.', s: 2 }, { t: 'I would explain the idea briefly.', s: 3 }, { t: 'I would present its benefits clearly.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 109, sec: 11, text: 'When students compare you unfavorably with another teacher, you:', opts: [{ t: 'I would feel discouraged.', s: 1 }, { t: 'I would ignore it.', s: 2 }, { t: 'I would reflect on their feedback.', s: 3 }, { t: 'I would work on improving my approach.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 110, sec: 11, text: 'During an unexpected challenge (like sudden syllabus change), you:', opts: [{ t: 'I would feel unsettled and continue as usual.', s: 1 }, { t: 'I would adjust gradually.', s: 2 }, { t: 'I would reorganize my plan.', s: 3 }, { t: 'I would adapt my teaching effectively.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 111, sec: 12, text: 'You are assigned to prepare a detailed lesson plan for the upcoming academic year. The submission deadline is in three days, but you already have other pressing work. What would you do?', opts: [{ t: 'I would manage what I can within the available time.', s: 1 }, { t: 'I would try to complete it alongside other tasks.', s: 2 }, { t: 'I would organize my work to meet the deadline.', s: 3 }, { t: 'I would prioritize and ensure quality completion.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 112, sec: 12, text: 'You committed to mentoring a group of weak students after school hours. A colleague invites you for a personal outing at the same time. What do you choose?', opts: [{ t: 'I would choose the outing.', s: 1 }, { t: 'I would consider both options.', s: 2 }, { t: 'I would try to balance both if possible.', s: 3 }, { t: 'I would prioritize my commitment to students.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 113, sec: 12, text: 'The school asks teachers to volunteer for a weekend workshop for parents. Many colleagues are reluctant. What would you do?', opts: [{ t: 'I would avoid volunteering.', s: 1 }, { t: 'I would wait to see others\' response.', s: 2 }, { t: 'I would consider participating.', s: 3 }, { t: 'I would volunteer if needed.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 114, sec: 12, text: 'You notice that a student has not received the marks you recorded in the grade sheet. The error was from your side. How do you respond?', opts: [{ t: 'I would leave it as it is.', s: 1 }, { t: 'I would feel concerned but delay action.', s: 2 }, { t: 'I would correct it when possible.', s: 3 }, { t: 'I would immediately correct and inform.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 115, sec: 12, text: 'You promised to bring additional learning materials for your students the next day. On reaching school, you realize you forgot. What would you do?', opts: [{ t: 'I would continue without addressing it.', s: 1 }, { t: 'I would mention it briefly.', s: 2 }, { t: 'I would apologize and plan to bring it later.', s: 3 }, { t: 'I would acknowledge it and provide an alternative immediately.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 116, sec: 12, text: 'A student approaches you for career advice after class. You are already tired and about to leave. What would you do?', opts: [{ t: 'I would ask them to come another time.', s: 1 }, { t: 'I would respond briefly.', s: 2 }, { t: 'I would give limited guidance.', s: 3 }, { t: 'I would spend time to guide the student.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 117, sec: 12, text: 'During a staff meeting, important responsibilities are being assigned for the annual day. How do you react?', opts: [{ t: 'I would avoid taking responsibility.', s: 1 }, { t: 'I would accept only if assigned.', s: 2 }, { t: 'I would be willing to contribute.', s: 3 }, { t: 'I would take responsibility and support the team.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 118, sec: 12, text: 'You are entrusted with handling confidential student information. A friend casually asks you about it. What would you do?', opts: [{ t: 'I would share basic details.', s: 1 }, { t: 'I would hesitate but not respond clearly.', s: 2 }, { t: 'I would avoid sharing information.', s: 3 }, { t: 'I would clearly refuse to share.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 119, sec: 12, text: 'Despite a busy schedule, you are requested to substitute for an absent colleague. What is your likely approach?', opts: [{ t: 'I would decline due to workload.', s: 1 }, { t: 'I would hesitate to accept.', s: 2 }, { t: 'I would accept if manageable.', s: 3 }, { t: 'I would adjust and take the class.', s: 5 }].sort(() => Math.random() - 0.5) },
+      { id: 120, sec: 12, text: 'You commit to preparing students for a competition. However, progress is slower than expected. What do you do?', opts: [{ t: 'I would continue without major changes.', s: 1 }, { t: 'I would try to improve gradually.', s: 2 }, { t: 'I would review and adjust preparation.', s: 3 }, { t: 'I would modify strategies for better results.', s: 5 }].sort(() => Math.random() - 0.5) }
+    ];
+
+    const PROFILES = [
+      { min: 551, max: 600, label: 'Outstanding Educator', color: '#3ec9a7', profile: 'Master of teaching excellence', interp: 'You are a master of teaching excellence. Your pedagogy, ethics, communication, creativity, and resilience make you a true role model. Students feel inspired by your presence, peers look up to you, and the institution benefits from your leadership. You consistently blend knowledge with values, creating holistic growth for learners.', suggestions: ['Take up leadership positions (HOD, academic coordinator, mentor)', 'Share best practices through publications, workshops, and seminars', 'Contribute to curriculum design and policy-level reforms', 'Mentor new teachers and create a culture of innovation and ethical teaching'] },
+      { min: 501, max: 550, label: 'Exceptional Performer', color: '#3ec9a7', profile: 'Highly effective and well-rounded', interp: 'You are highly effective and well-rounded, showing strength in pedagogy, commitment, and innovation. Students see you as approachable and reliable. While most areas are strong, there are occasional gaps in adaptability, resilience, or creativity that prevent mastery.', suggestions: ['Identify 2–3 areas of growth (e.g., digital pedagogy, creative classroom methods)', 'Attend advanced faculty development programs', 'Collaborate with peers to implement interdisciplinary and experiential teaching practices', 'Explore innovative teaching strategies like gamification, flipped classrooms, or design thinking'] },
+      { min: 451, max: 500, label: 'Proficient Educator', color: '#3ec9a7', profile: 'Consistent and respected educator', interp: 'You are consistent in most teaching areas. You manage classrooms effectively, possess solid subject knowledge, and are respected by students. However, creativity, innovation, or adaptability may be limited, making your teaching slightly predictable.', suggestions: ['Integrate student-centered learning methods (case studies, projects)', 'Enhance technological fluency (digital tools, LMS, AI-based teaching aids)', 'Seek continuous feedback from students and peers for self-improvement', 'Develop growth mindset habits by experimenting with new methods regularly'] },
+      { min: 401, max: 450, label: 'Developing Professional', color: '#d4a843', profile: 'Committed with potential for growth', interp: 'You show commitment to teaching but lack consistency across areas like adaptability, motivation, or resilience. Students may sometimes find your sessions engaging but at other times less impactful. Potential is evident, but refinement is required.', suggestions: ['Participate in regular professional development workshops', 'Work with a mentor or peer learning group for constructive feedback', 'Set short-term personal goals (e.g., improving questioning techniques, reducing lecture-dependence)', 'Develop reflective practices (journals, lesson reviews)'] },
+      { min: 351, max: 400, label: 'Moderate Performer', color: '#d4a843', profile: 'Basic teaching capability with gaps', interp: 'You demonstrate a basic level of teaching capability. While you handle responsibilities, multiple gaps (ethics, commitment, or creativity) reduce the impact of your sessions. Students may struggle with engagement or clarity.', suggestions: ['Focus on strengthening classroom management and clarity of communication', 'Observe senior teachers to model effective methods', 'Undertake training in core pedagogy (lesson planning, assessment methods)', 'Commit to consistent self-discipline in preparation and delivery'] },
+      { min: 301, max: 350, label: 'Emerging Educator', color: '#d4a843', profile: 'Teaching potential but needs consistency', interp: 'You show teaching potential but lack consistency in fundamentals. Students may not experience steady learning outcomes, and peers may notice areas where basic competencies need reinforcement.', suggestions: ['Begin with pedagogical foundation training (how to plan lessons, engage students)', 'Strengthen responsibility and time management', 'Seek guided mentorship from experienced educators', 'Focus on one improvement area at a time (e.g., classroom control → then communication)'] },
+      { min: 201, max: 300, label: 'Needs Improvement', color: '#e8624a', profile: 'Significant challenges requiring support', interp: 'You face significant challenges across multiple teaching competencies. Classroom delivery, subject clarity, or ethics may be inconsistent. Students may disengage, and your confidence may feel shaken.', suggestions: ['Enroll in intensive teacher training programs', 'Rebuild core teaching values (responsibility, ethics, patience)', 'Set daily/weekly micro-goals (e.g., "prepare 2 strong activities per lesson")', 'Work with senior faculty or supervisors for close monitoring and guidance'] },
+      { min: 121, max: 200, label: 'Under Performer', color: '#d32f2f', profile: 'Critical gaps and urgent intervention needed', interp: 'Current teaching effectiveness is very low. Lack of motivation, resilience, or professional ethics may be evident. Students are at risk of not receiving meaningful learning, and your role as a teacher is under question.', suggestions: ['Take up foundational retraining in pedagogy and ethics', 'Work on self-motivation and professional identity', 'Undergo continuous supervision and mentorship for accountability', 'Reconnect with the purpose of teaching by reflecting on student needs and values'] },
+      { min: 0, max: 120, label: 'Critical Concern', color: '#d32f2f', profile: 'Severe gaps with fundamental misalignment', interp: 'There are severe gaps in teaching aptitude, ethics, or commitment. Students\' learning outcomes are deeply compromised, and your alignment with the teaching profession itself is in question.', suggestions: ['Engage in intensive remedial training', 'Work with psychological support or career counselors to rebuild confidence', 'Reassess whether teaching is the right career choice', 'If continuing, develop step-by-step growth plans under constant supervision'] },
+    ];
+
+    // ══ UPDATED SEC_RECO: now includes per-band interpretation from the TCAF doc ══
+    const SEC_RECO = {
+      1: {
+        very_excellent: { label: 'Excellent Teaching Aptitude', interp: 'You have a natural passion and strong inclination toward teaching. You enjoy simplifying concepts, engaging students, and using innovative strategies. Students are likely to find your classes inspiring and motivating.', items: ['Continue experimenting with creative methods to keep your teaching dynamic.', 'Mentor other teachers by sharing your strategies.', 'Consider advanced certifications or research in pedagogy to sharpen your expertise.'] },
+        high: { label: 'Good Teaching Aptitude', interp: 'You show clear interest in teaching and are generally effective, but there is still room to refine your style. At times, you may rely on routine methods instead of exploring more engaging approaches.', items: ['Focus on integrating more interactive strategies into lessons.', 'Seek feedback from students on what helps them learn best.', 'Attend workshops on innovative teaching techniques.'] },
+        mod:  { label: 'Moderate Teaching Aptitude', interp: 'You have the potential for teaching but may not consistently enjoy or excel in it. Sometimes your approach may appear mechanical or less engaging for students.', items: ['Reflect on whether teaching is a passion or just a duty.', 'Practice making lessons student-centred with practical examples.', 'Observe experienced teachers to learn different classroom approaches.'] },
+        low:  { label: 'Low Teaching Aptitude', interp: 'You may find teaching challenging or less enjoyable, and this could affect your effectiveness in the classroom. Students may not feel motivated or engaged under your instruction.', items: ['Work on building a deeper connection with students.','Develop patience and interest in simplifying concepts.','Take up short courses on teaching methodology or communication.','If lack of interest persists, reflect on whether teaching is the right career path for you.'] },
+      },
+      2: {
+        very_excellent: { label: 'Excellent Subject Knowledge', interp: 'You demonstrate strong mastery of your subject and explain concepts with clarity and confidence. You make complex topics simple and engaging, and you constantly update yourself with new knowledge. Students feel assured and inspired by your teaching.', items: ['Keep integrating the latest research, trends, and real-life applications into your lessons.', 'Mentor colleagues and share best practices for improving clarity.', 'Consider contributing to academic journals, training, or curriculum development.'] },
+        high: { label: 'Good Subject Knowledge', interp: 'You have a solid understanding of your subject and explain it clearly most of the time. However, you may occasionally rely too much on standard explanations or miss opportunities to bring in fresh examples and perspectives.', items: ['Strengthen your content delivery with more variety in examples and approaches.', 'Use student feedback to identify areas where your explanations can improve.', 'Attend workshops or webinars to enhance subject-related pedagogy.'] },
+        mod:  { label: 'Moderate Subject Knowledge', interp: 'Your subject knowledge and explanations are adequate but not always clear or engaging. Students may sometimes struggle to grasp concepts or lose interest due to lack of depth, preparation, or creativity in your approach.', items: ['Dedicate more time to lesson preparation and simplify difficult concepts.', 'Use visuals, real-life examples, and interactive techniques to improve clarity.', 'Collaborate with experienced teachers to learn strategies for clearer delivery.'] },
+        low:  { label: 'Low Subject Knowledge', interp: 'You may lack confidence in your subject knowledge or struggle to explain it effectively. This could reduce student motivation and learning outcomes. Without deeper understanding and clear teaching strategies, your effectiveness as a teacher is limited.', items: ['Revisit the fundamentals of your subject through refresher courses or study.','Focus on clear communication — avoid jargon and break content into simple steps.','Engage in continuous professional development to strengthen your expertise.','Pair with a mentor or colleague for support in lesson planning and delivery.'] },
+      },
+      3: {
+        very_excellent: { label: 'Exemplary Manager', interp: 'You demonstrate excellent classroom management with a balance of authority, empathy, and engagement. Your ability to anticipate issues, prevent disruptions, and maintain respect creates a highly conducive learning environment.', items: ['Continue to use proactive strategies like co-created rules and positive reinforcement.', 'Mentor fellow teachers in classroom management techniques.', 'Experiment with advanced strategies such as peer-mediation and restorative practices.'] },
+        high: { label: 'Effective Practitioner', interp: 'You manage the classroom well with effective strategies in most situations. While you are good at resolving conflicts and maintaining discipline, there is still room to make your approach more student-centered and preventive.', items: ['Strengthen your toolkit with interactive teaching methods to reduce disengagement.', 'Develop consistent routines that minimise the chance of disruption.', 'Practice reflective teaching—review incidents to find preventive solutions.'] },
+        mod:  { label: 'Developing Facilitator', interp: 'You show some awareness of classroom management but tend to rely on reactive measures. Discipline is often maintained, but sometimes at the cost of student engagement. Your approach may be too lenient or too punitive, leading to frequent disruptions.', items: ['Learn and apply proactive discipline techniques (signals, routines, positive behaviour reinforcement).', 'Focus on building rapport to prevent misbehaviour.', 'Attend training/workshops on classroom climate and conflict resolution.'] },
+        low:  { label: 'Struggling Controller', interp: 'Your current approach is either too lenient (ignoring issues) or too harsh (punitive discipline). This leads to frequent disruptions, disengaged learners, and lack of respect for authority.', items: ['Begin by setting clear expectations and boundaries in your class.','Observe experienced teachers to learn classroom management best practices.','Focus on building mutual respect rather than control.','Start small: introduce routines, consistent consequences, and relationship-building activities.'] },
+      },
+      4: {
+        very_excellent: { label: 'Excellent Communicator', interp: 'You demonstrate outstanding communication skills. You explain ideas clearly, adapt to student needs, and encourage participation. Both verbal and non-verbal communication are your strong assets.', items: ['Mentor peers or junior teachers in effective communication.', 'Explore advanced tools (storytelling, digital media, public speaking workshops).', 'Continue refining by experimenting with new classroom strategies.'] },
+        high: { label: 'Effective Communicator', interp: 'You are a strong communicator who conveys concepts well and maintains student engagement. Some situations may challenge your adaptability, but overall you are effective.', items: ['Work on fine-tuning non-verbal cues and handling miscommunication.', 'Practice using more examples, visuals, or analogies for clarity.', 'Take feedback from students regularly to polish further.'] },
+        mod:  { label: 'Basic Communicator', interp: 'You communicate at a basic level but may sometimes struggle to maintain clarity or adapt to diverse learners. Students may occasionally miss key points. Communication may be a barrier in your teaching, leading to misunderstandings.', items: ['Focus on simplifying language and instructions.', 'Develop active listening and feedback-giving techniques.', 'Join communication-focused training or workshops.'] },
+        low:  { label: 'Needs Improvement', interp: 'Communication is currently a barrier in your teaching. Instructions, explanations, and rapport with students may not be effective, leading to misunderstandings.', items: ['Engage in targeted communication skill-building programs.','Practice active listening and avoid harsh or discouraging responses.','Use role-play, peer observation, and structured reflection to improve delivery.'] },
+      },
+      5: {
+        very_excellent: { label: 'Exceptional Emotional Intelligence', interp: 'You demonstrate outstanding self-awareness, empathy, and regulation. You manage emotions constructively, connect deeply with students, and respond gracefully in challenging situations.', items: ['Mentor peers in handling emotionally charged classroom scenarios.', 'Continue practising mindfulness or reflection to sustain balance.', 'Take leadership roles in student counselling or mentoring programs.'] },
+        high: { label: 'Strong Emotional Intelligence', interp: 'You show a high degree of empathy and emotional regulation. You usually respond calmly, though occasionally stress may influence your approach.', items: ['Strengthen resilience strategies for high-pressure situations.', 'Engage in peer discussions or workshops on advanced EI practices.', 'Focus on recognising subtle emotional cues in students more consistently.'] },
+        mod:  { label: 'Moderate Emotional Intelligence', interp: 'You have a fair understanding of emotions and empathy, but your responses can sometimes lack consistency. You may overlook deeper emotional needs of students or colleagues and may appear unapproachable or insensitive.', items: ['Practice active listening and reflective questioning.', 'Keep an emotion journal to track triggers and growth.', 'Join training sessions on empathy and conflict resolution.'] },
+        low:  { label: 'Low Emotional Intelligence', interp: 'You may struggle with recognizing and regulating emotions, leading to strained interactions. Students might perceive you as unapproachable or insensitive.', items: ['Start with basic EI development activities (e.g., mindfulness, journaling, role-play).','Learn techniques for empathy (putting yourself in students shoes).','Seek mentoring from experienced teachers on classroom emotional handling.'] },
+      },
+      6: {
+        very_excellent: { label: 'Highly Passionate Teacher', interp: 'You radiate enthusiasm and commitment towards teaching. Your passion inspires students and peers alike. Teaching is not just a profession for you, but a calling.', items: ['Continue mentoring and sharing your passion with new teachers.', 'Engage in leadership roles in academic innovation.', 'Sustain your energy by balancing passion with self-care.'] },
+        high: { label: 'Passionate but Needs Sustained Energy', interp: 'You are passionate about teaching but may experience occasional dips in motivation. You generally inspire your students but sometimes find routine or external pressures draining.', items: ['Reconnect regularly with your "why" for choosing teaching.', 'Explore innovative practices to maintain enthusiasm.', 'Participate in teacher networks to exchange inspiration.'] },
+        mod:  { label: 'Moderately Motivated', interp: 'You view teaching positively, but your passion appears inconsistent. You may not always bring energy and excitement into the classroom. Your motivation may be driven more by external factors than intrinsic passion, limiting your effectiveness in inspiring students.', items: ['Identify what excites you most about teaching and focus on it.', 'Set short-term professional goals to keep momentum.', 'Engage in skill-building workshops to rediscover enthusiasm.'] },
+        low:  { label: 'Low Motivation & Passion', interp: 'Your motivation seems to be driven more by external factors (job security, workload) rather than intrinsic passion. This may limit your effectiveness in inspiring students.', items: ['Reflect deeply on your purpose in teaching.','Seek mentorship from highly passionate teachers.','Reignite interest by experimenting with student-centered methods.','If lack of passion persists, explore whether teaching aligns with your long-term career values.'] },
+      },
+      7: {
+        very_excellent: { label: 'Exceptionally Creative & Innovative', interp: 'You consistently design engaging, student-centred lessons with fresh ideas and creative strategies. Your innovative mindset makes learning enjoyable and meaningful.', items: ['Mentor colleagues on creative teaching practices.', 'Document and share your methods as best practices.', 'Take part in education innovation forums or publish your ideas.'] },
+        high: { label: 'Strongly Creative', interp: 'You show strong creativity in your teaching methods and regularly adapt lessons with innovative ideas. Students enjoy and benefit from your approach.', items: ['Experiment with more cross-disciplinary teaching methods.', 'Explore digital tools and gamification strategies.', 'Seek feedback from students to further refine your innovations.'] },
+        mod:  { label: 'Moderately Creative', interp: 'You show some creativity, but your lessons are still largely traditional. Innovation is occasional, not consistent. Your teaching may be primarily conventional with minimal creativity, which may cause students to find lessons monotonous or disengaging.', items: ['Start small with one creative activity in every lesson.', 'Collaborate with peers to exchange innovative teaching ideas.', 'Attend workshops or webinars on creative pedagogy.'] },
+        low:  { label: 'Low Creativity', interp: 'Your teaching is primarily conventional with minimal creativity. Students may find lessons monotonous or disengaging.', items: ['Begin by integrating visuals, stories, or simple activities.','Experiment with project-based learning or role-play.','Gradually adopt technology and hands-on methods to stimulate interest.'] },
+      },
+      8: {
+        very_excellent: { label: 'Highly Adaptive', interp: 'You demonstrate outstanding adaptability in any situation. You embrace change positively and can adjust your teaching style, tools, and methods seamlessly. Students benefit greatly from your flexibility.', items: ['Take leadership in adopting new educational technologies.', 'Mentor peers struggling with flexibility.', 'Experiment with more innovative teaching strategies.'] },
+        high: { label: 'Adaptive', interp: 'You are generally flexible and adapt well to most situations. You show openness to new methods, though sometimes you prefer familiar routines.', items: ['Challenge yourself by experimenting with unplanned teaching opportunities.', 'Proactively prepare for sudden changes instead of reacting.', 'Attend training to improve quick adaptability.'] },
+        mod:  { label: 'Moderately Flexible', interp: 'You adapt when required, but with hesitation or reluctance. Change sometimes feels like a burden rather than an opportunity. You may struggle with adaptability and often resist changes in teaching methods or environments, which can hinder student learning.', items: ['Practice handling unexpected disruptions during mock lessons.', 'Seek feedback from students on what helps them learn better.', 'Start small—try incorporating flexible strategies step by step.'] },
+        low:  { label: 'Rigid', interp: 'You struggle with adaptability and often resist changes in teaching methods or environments. This rigidity may hinder student learning and reduce effectiveness in dynamic classroom settings.', items: ['Begin with mindset shifts—see change as growth.','Enroll in workshops on technology, classroom innovation, and flexible teaching.','Practice adapting to one small unexpected situation daily.'] },
+      },
+      9: {
+        very_excellent: { label: 'Exemplary Role Model', interp: 'You consistently demonstrate outstanding leadership qualities and serve as a true role model for both students and peers. Your ability to guide, mentor, and inspire creates a lasting positive impact in the classroom and school environment.', items: ['Continue mentoring colleagues and newer teachers.', 'Take up more leadership opportunities in school/community initiatives.', 'Share your leadership practices through workshops and discussions.'] },
+        high: { label: 'Strong Leader', interp: 'You show strong leadership and role modelling traits, effectively guiding students and colleagues in most situations. While your influence is positive, there is room to strengthen consistency under pressure or in challenging circumstances.', items: ['Practice self-reflection to handle stress with even more composure.', 'Enhance conflict resolution and mediation skills.', 'Aim for consistent demonstration of ethical decision-making.'] },
+        mod:  { label: 'Emerging Leader', interp: 'You display some leadership qualities but tend to step back or hesitate in critical situations. Students and peers may not always see you as a consistent role model. Leadership potential exists but requires further development. You may avoid responsibility or miss opportunities to positively influence others.', items: ['Take small but consistent leadership roles in class projects or staff activities.', 'Learn by observing senior colleagues who excel as role models.', 'Focus on building confidence to step up when required.'] },
+        low:  { label: 'Needs Improvement', interp: 'Leadership and role modeling are areas of concern. You may avoid responsibility, show inconsistency, or miss opportunities to positively influence students and colleagues. This limits your ability to be seen as a mentor figure.', items: ['Actively seek mentorship and training in leadership skills.','Work on communication, decision-making, and conflict management.','Begin with small steps in showing accountability and integrity in daily tasks.'] },
+      },
+      10: {
+        very_excellent: { label: 'Exemplary Ethical Educator', interp: 'You demonstrate high integrity, fairness, and professionalism in all aspects of teaching. Students, colleagues, and parents can trust you completely. Your decisions are guided by strong moral values, making you a role model in the teaching community.', items: ['Continue being an ethical role model for colleagues.', 'Mentor new teachers on professional values.', 'Share your experiences in faculty workshops on ethics.'] },
+        high: { label: 'Strong Ethical Foundation', interp: 'You show a good level of ethical awareness and generally make the right choices in difficult situations. You are respected for being responsible and professional, though occasionally external pressures may influence your decisions.', items: ['Stay consistent in applying ethics even in challenging situations.', 'Reflect on real-life classroom dilemmas to strengthen decision-making.', 'Engage in professional ethics training to polish your skills further.'] },
+        mod:  { label: 'Needs Ethical Strengthening', interp: 'Your understanding of ethics and values is developing, but inconsistencies are visible in practice. You may sometimes compromise confidentiality, fairness, or discipline. Low adherence to professional ethics can seriously impact students\' trust and the institution\'s reputation.', items: ['Take up case study discussions on ethics in teaching.', 'Set personal ethical guidelines to follow strictly.', 'Seek mentorship from senior faculty on handling sensitive matters.'] },
+        low:  { label: 'At Risk of Ethical Compromise', interp: 'You show low adherence to professional ethics and values. This may lead to favoritism, misuse of authority, or negligence of professional duties. Such behavior can seriously impact students’ trust and the institution’s reputation.', items: ['Undergo intensive ethics training programs.','Reflect deeply on the impact of unethical practices on students’ lives.','Work with a mentor/supervisor for accountability.','Focus on self-discipline and fairness in every decision.'] },
+      },
+      11: {
+        very_excellent: { label: 'Exceptional Positive Attitude', interp: 'You demonstrate outstanding optimism, a strong growth mindset, and high resilience. You embrace challenges as opportunities, recover quickly from setbacks, and inspire positivity in your students.', items: ['Continue being a role model of positivity.', 'Share your resilience strategies with peers to uplift others.', 'Take leadership in mentoring programs where optimism is critical.'] },
+        high: { label: 'Strong Positive Attitude', interp: 'You show a generally positive outlook, adaptability, and perseverance. While you handle challenges effectively, occasional dips in optimism may occur under stress.', items: ['Strengthen resilience practices such as journaling or mindfulness.', 'Engage in peer learning to share and absorb positive teaching strategies.', 'Take feedback consistently and apply it to sustain growth.'] },
+        mod:  { label: 'Moderate Positive Attitude', interp: 'Your approach to challenges fluctuates. At times, you show resilience, but in difficult situations you may resort to discouragement or avoidance. You may struggle with maintaining optimism and a growth mindset, which can affect both your teaching and student morale.', items: ['Develop self-awareness of negative thinking patterns.', 'Practice reframing setbacks as learning opportunities.', 'Attend workshops on growth mindset and stress management.'] },
+        low:  { label: 'Low Positive Attitude', interp: 'You struggle with maintaining optimism, resilience, and a growth mindset. You may feel easily discouraged and resist changes or feedback. This can affect both your teaching and student morale.', items: ['Begin with personal reflection and counselling support if needed.','Cultivate daily practices like gratitude journaling and affirmations.','Seek mentoring from senior teachers who model resilience.','Engage in continuous professional development to rebuild confidence.'] },
+      },
+      12: {
+        very_excellent: { label: 'Outstanding', interp: 'You consistently demonstrate a deep sense of responsibility and unwavering commitment. Tasks are completed with diligence, and you hold yourself accountable for outcomes. Others trust you as a reliable professional who always follows through.', items: ['Continue being a role model for reliability and dedication.', 'Mentor peers/colleagues on accountability practices.', 'Take on leadership or critical projects requiring high commitment.'] },
+        high: { label: 'High Performer', interp: 'You show strong responsibility and commitment in most situations. While occasional lapses may occur, overall you can be relied upon to meet expectations and honour commitments.', items: ['Work on consistency, especially during high-pressure situations.', 'Strengthen time management to prevent last-minute challenges.', 'Set personal standards slightly higher to push towards excellence.'] },
+        mod:  { label: 'Developing ', interp: 'Your responsibility and commitment are moderate, showing effort but not always consistency. At times, procrastination or distractions affect follow-through. You may struggle with completing tasks on time or meeting expectations, leading to challenges in trust and reliability.', items: ['Create structured schedules and use reminders for accountability.', 'Prioritise tasks based on importance and deadlines.', 'Practice self-discipline through small, consistent habits.'] },
+        low:  { label: 'Needs Improvement', interp: 'You struggle with responsibility and commitment, often failing to complete tasks on time or meet expectations. Accountability may be avoided, leading to challenges in trust and reliability.', items: ['Begin with small daily commitments and track progress.','Seek accountability partners (mentor/colleague) to stay consistent.','Develop intrinsic motivation by connecting tasks to personal/professional growth.','Attend training on responsibility, accountability, and work ethics.'] },
+      },
+    };
+
+    let user = {}, gender = '', shuffledQs = [], currentIdx = 0, answers = {};
+
+    (function initSessionGuard() {
+      let status = null;
+      try { status = sessionStorage.getItem('mp_status'); } catch (e) { console.warn('Storage access blocked:', e) }
+      if (status === 'done' || status === 'quiz_started') {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('screen-denied').classList.add('active');
+      }
+    })();
+
+    function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0, 0) }
+    function pct(s, m) { return Math.min(100, Math.round((s / m) * 100)) }
+    function getProfile(total) { return PROFILES.find(p => total >= p.min && total <= p.max) || PROFILES[PROFILES.length - 1] }
+    function getSecBand(score) { return score >= 40 ? 'high' : score >= 30 ? 'mod' : 'low' }
+    function shuffleArray(array) { const shuffled = [...array]; for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]] } return shuffled }
+
+    function togglePass() { const i = document.getElementById('auth-pass'); i.type = i.type === 'password' ? 'text' : 'password' }
+    function doAuth() {
+      const u = document.getElementById('auth-user').value.trim();
+      const p = document.getElementById('auth-pass').value;
+      const err = document.getElementById('auth-err');
+      if (u === 'user123' && p === '90143514') { err.style.display = 'none'; try { sessionStorage.setItem('mp_status', 'authed'); } catch (e) { console.warn('Cannot set session:', e) } showScreen('screen-login') }
+      else { err.style.display = 'block' }
+    }
+
+    function calculateAge(dobString) {
+      const parts = dobString.split('/');
+      if (parts.length !== 3) return null;
+      const day = parseInt(parts[0]), month = parseInt(parts[1]), year = parseInt(parts[2]);
+      if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900) return null;
+      const dob = new Date(year, month - 1, day);
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const monthDiff = today.getMonth() - dob.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) age--;
+      return age;
+    }
+
+    function updateAge() {
+      const dobField = document.getElementById('inp-dob');
+      const ageField = document.getElementById('inp-age');
+      const dobValue = dobField.value.trim();
+      if (dobValue) {
+        const age = calculateAge(dobValue);
+        ageField.value = (age !== null && age >= 18 && age <= 80) ? age : '';
+      } else { ageField.value = '' }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dobField = document.getElementById('inp-dob');
+      if (dobField) { dobField.addEventListener('change', updateAge); dobField.addEventListener('blur', updateAge) }
+      const inputFields = ['inp-name', 'inp-dob', 'inp-age', 'inp-college', 'inp-dept'];
+      const errorMap = { 'inp-name': 'err-name', 'inp-dob': 'err-dob', 'inp-age': 'err-age', 'inp-college': 'err-college', 'inp-dept': 'err-dept' };
+      inputFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+          const eventType = fieldId === 'inp-college' ? 'change' : 'input';
+          field.addEventListener(eventType, () => { field.classList.remove('has-error'); const errorId = errorMap[fieldId]; if (errorId) { const errorEl = document.getElementById(errorId); if (errorEl) errorEl.style.display = 'none' } });
+          if (fieldId === 'inp-college') {
+            field.addEventListener('focus', () => { const label = field.closest('.form-group').querySelector('label'); if (label) label.style.color = 'var(--gold)' });
+            field.addEventListener('blur', () => { const label = field.closest('.form-group').querySelector('label'); if (label && !field.value) label.style.color = 'var(--text2)' });
+            field.addEventListener('change', () => {
+              const label = field.closest('.form-group').querySelector('label');
+              if (label && field.value) label.style.color = 'var(--gold)';
+              const otherInput = document.getElementById('inp-college-other');
+              if (field.value === 'Others') { otherInput.style.display = 'block'; otherInput.focus() }
+              else { otherInput.style.display = 'none'; otherInput.value = ''; otherInput.classList.remove('has-error') }
+            });
+          }
+        }
+      });
+      const otherInput = document.getElementById('inp-college-other');
+      if (otherInput) { otherInput.addEventListener('input', () => { otherInput.classList.remove('has-error'); const errorEl = document.getElementById('err-college'); if (errorEl) errorEl.style.display = 'none' }) }
+    });
+
+    function pickGender(btn, val) { document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('sel')); btn.classList.add('sel'); gender = val }
+
+    function submitLogin() {
+      let ok = true;
+      const name = document.getElementById('inp-name').value.trim();
+      const dob = document.getElementById('inp-dob').value.trim();
+      const age = parseInt(document.getElementById('inp-age').value);
+      const collegeSelect = document.getElementById('inp-college').value.trim();
+      const collegeOther = document.getElementById('inp-college-other').value.trim();
+      const college = collegeSelect === 'Others' ? collegeOther : collegeSelect;
+      const dept = document.getElementById('inp-dept').value.trim();
+      const se = (id, show) => { document.getElementById(id).style.display = show ? 'block' : 'none' };
+      const setErr = (id, inputId, hasError) => { se(id, hasError); if (inputId) document.getElementById(inputId).classList.toggle('has-error', hasError) };
+      setErr('err-name', 'inp-name', !name); if (!name) ok = false;
+      setErr('err-dob', 'inp-dob', !dob); if (!dob) ok = false;
+      setErr('err-age', 'inp-age', isNaN(age) || age < 18 || age > 80); if (isNaN(age) || age < 18 || age > 80) ok = false;
+      setErr('err-gender', null, !gender); if (!gender) ok = false;
+      const collegeHasError = !college;
+      if (collegeHasError) { document.getElementById('err-college').style.display = 'block'; document.getElementById('inp-college').classList.toggle('has-error', true); if (collegeSelect === 'Others') document.getElementById('inp-college-other').classList.add('has-error') }
+      else { document.getElementById('err-college').style.display = 'none'; document.getElementById('inp-college').classList.remove('has-error'); document.getElementById('inp-college-other').classList.remove('has-error') }
+      if (collegeHasError) ok = false;
+      setErr('err-dept', 'inp-dept', !dept); if (!dept) ok = false;
+      if (!ok) return;
+      user = { name, age, dob, gender, college, dept };
+      startQuiz();
+    }
+
+    function startQuiz() {
+      try { sessionStorage.setItem('mp_status', 'quiz_started'); } catch (e) { console.warn('Cannot set quiz status:', e) }
+      shuffledQs = shuffleArray(QUESTIONS).map(q => ({ ...q, opts: [...q.opts] }));
+      currentIdx = 0; answers = {};
+      showScreen('screen-quiz');
+      buildSlides();
+      goToSlide(0, 'none');
+    }
+
+    function buildSlides() {
+      const vp = document.getElementById('slide-viewport'); vp.innerHTML = '';
+      const L = ['A', 'B', 'C', 'D', 'E'];
+      shuffledQs.forEach((q, i) => {
+        const sec = SECS.find(s => s.id === q.sec);
+        const icon = Q_ICONS[q.id] || '✨';
+        const slide = document.createElement('div'); slide.className = 'slide'; slide.id = 'slide-' + i;
+        const optsHtml = q.opts.map((opt, oi) => `<button class="opt-btn" id="opt-${i}-${oi}" onclick="pickOpt(${i},${oi},${opt.s},event)"><span class="mk">${L[oi]}</span><span>${opt.t}</span></button>`).join('');
+        slide.innerHTML = `<div class="slide-card" style="border-top:3px solid ${sec.color}"><div class="slide-illus">${icon}</div><div class="q-text">${q.text}</div><div class="opts">${optsHtml}</div></div>`;
+        vp.appendChild(slide);
+      });
+    }
+
+    function goToSlide(idx, dir) {
+      const total = shuffledQs.length;
+      const prev = document.querySelector('.slide.active');
+      if (prev && dir !== 'none') { prev.classList.remove('active'); prev.classList.add('exit-left'); setTimeout(() => prev.classList.remove('exit-left'), 420) }
+      else if (prev) { prev.classList.remove('active') }
+      currentIdx = idx;
+      const slide = document.getElementById('slide-' + idx);
+      if (dir === 'back') { slide.style.transform = 'translateX(-50px)'; requestAnimationFrame(() => { slide.style.transition = 'opacity .38s ease,transform .38s ease'; slide.classList.add('active'); slide.style.transform = '' }) }
+      else { slide.classList.add('active') }
+      const q = shuffledQs[idx];
+      if (answers[q.id] !== undefined) {
+        q.opts.forEach((opt, oi) => {
+          const btn = document.getElementById(`opt-${idx}-${oi}`); if (!btn) return;
+          const s = opt.s === answers[q.id]; btn.classList.toggle('sel', s);
+          const mk = btn.querySelector('.mk'); if (mk) { mk.style.background = s ? 'var(--gold)' : ''; mk.style.borderColor = s ? 'var(--gold)' : ''; mk.style.color = s ? '#07080d' : '' }
+        });
+      }
+      const p = Math.round(((idx + 1) / total) * 100);
+      document.getElementById('prog-fill').style.width = p + '%';
+      document.getElementById('prog-pct').textContent = p + '%';
+    }
+
+    function pickOpt(slideIdx, optIdx, score, ev) {
+      const q = shuffledQs[slideIdx];
+      answers[q.id] = score;
+      if (ev) { const btn = ev.currentTarget; const r = document.createElement('span'); r.className = 'opt-ripple'; const rect = btn.getBoundingClientRect(); r.style.left = (ev.clientX - rect.left - 10) + 'px'; r.style.top = (ev.clientY - rect.top - 10) + 'px'; btn.appendChild(r); setTimeout(() => r.remove(), 600) }
+      shuffledQs[slideIdx].opts.forEach((_, oi) => { const b = document.getElementById(`opt-${slideIdx}-${oi}`); if (!b) return; const s = oi === optIdx; b.classList.toggle('sel', s); const mk = b.querySelector('.mk'); if (mk) { mk.style.background = s ? 'var(--gold)' : ''; mk.style.borderColor = s ? 'var(--gold)' : ''; mk.style.color = s ? '#07080d' : '' } });
+      if (slideIdx < shuffledQs.length - 1) { setTimeout(() => { if (answers[q.id] !== undefined) goToSlide(slideIdx + 1, 'forward') }, 480) }
+      else { setTimeout(() => buildReport(), 500) }
+    }
+
+    function calcScores() {
+      const raw = {};
+      SECS.forEach(s => { raw[s.id] = 0 });
+      QUESTIONS.forEach(q => {
+        if (answers[q.id] === undefined) return;
+        const sec = SECS.find(s => s.id === q.sec);
+        const score = sec.reverse ? (6 - answers[q.id]) : answers[q.id];
+        raw[q.sec] += score;
+      });
+      return raw;
+    }
+
+    function buildReport() {
+      try { sessionStorage.setItem('mp_status', 'done'); } catch (e) { console.warn('Cannot set done status:', e) }
+      showScreen('screen-report');
+      const secScores = calcScores();
+      const total = Object.values(secScores).reduce((a, b) => a + b, 0);
+      const totalPct = pct(total, 600);
+      const prof = getProfile(total);
+      try { localStorage.setItem('mp_last', JSON.stringify({ secScores, total, totalPct, label: prof.label, date: new Date().toISOString() })) } catch (e) { console.warn('Cannot save to localStorage:', e) }
+      window._reportData = { secScores, total, totalPct, prof };
+      setTimeout(() => downloadReport(), 100);
+    }
+
+    async function sendPdfToAdmin(pdfBlob, fileName, reportData) {
+      try {
+        // Convert PDF blob to base64
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const base64Pdf = e.target.result.split(',')[1];
+          
+          const payload = {
+            pdfBase64: base64Pdf,
+            fileName: fileName,
+            userName: user.name || 'Unknown',
+            userEmail: user.email || user.dob || 'N/A',
+            reportData: reportData
+          };
+
+          try {
+            const response = await fetch('/api/send-report', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+              console.log('✅ Report sent to admin:', result.message);
+            } else {
+              console.warn('⚠️ Failed to send report:', result.message);
+            }
+          } catch (error) {
+            console.error('❌ Error sending report to admin:', error);
+          }
+        };
+        reader.readAsDataURL(pdfBlob);
+      } catch (error) {
+        console.error('Error processing PDF for email:', error);
+      }
+    }
+
+    async function downloadReport() {
+      const d = window._reportData; if (!d) { alert('Report data unavailable. Please complete the assessment first.'); return }
+      const pdfModule = window.jspdf || window.jsPDF || (window.jspdf && window.jspdf.default) || (window.jsPDF && window.jsPDF.default);
+      const jsPDF = typeof pdfModule === 'function' ? pdfModule : (pdfModule && ((pdfModule.jsPDF || pdfModule.default) || pdfModule));
+      if (!jsPDF) { alert('PDF library failed to load. Please refresh the page.'); return }
+      try {
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        const W = 210, H = 297;
+        const date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+        const dob = !user.dob ? '-' : (() => {
+          const raw = String(user.dob).trim(); const p = raw.split('/');
+          if (p.length === 3) { const day = parseInt(p[0], 10), month = parseInt(p[1], 10), year = parseInt(p[2], 10); if (!isNaN(day) && !isNaN(month) && !isNaN(year) && year >= 1900) { const dt = new Date(year, month - 1, day); if (!isNaN(dt.getTime())) return dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) } }
+          const fb = new Date(raw); return isNaN(fb.getTime()) ? raw : fb.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+        })();
+
+        const h2r = h => { const r = parseInt(h.slice(1, 3), 16), g = parseInt(h.slice(3, 5), 16), b = parseInt(h.slice(5, 7), 16); return [r, g, b] };
+        const pdfText = v => String(v ?? '').normalize('NFKD').replace(/[^\x20-\x7E]/g, '').replace(/\s+/g, ' ').trim();
+        const sf = (style, size, color) => { doc.setFont('helvetica', style); doc.setFontSize(size); doc.setTextColor(...(color || [43, 51, 64])) };
+        const tx = (str, x, y, opt) => doc.text(Array.isArray(str) ? str.map(pdfText) : pdfText(str), x, y, opt || {});
+        const ln = (x1, y1, x2, y2, col, lw) => { doc.setDrawColor(...(col || [40, 44, 58])); doc.setLineWidth(lw || 0.3); doc.line(x1, y1, x2, y2) };
+        const fillRect = (x, y, w, h, col) => { doc.setFillColor(...col); doc.rect(x, y, w, h, 'F') };
+        const rndRect = (x, y, w, h, col, scol) => { if (col) doc.setFillColor(...col); if (scol) doc.setDrawColor(...scol); else doc.setDrawColor(...(col || [15, 17, 24])); doc.roundedRect(x, y, w, h, 2, 2, col && scol ? 'FD' : col ? 'F' : 'S') };
+        const hBar = (x, y, val, max, w, col) => { doc.setFillColor(232, 237, 244); doc.roundedRect(x, y, w, 3, 1.5, 1.5, 'F'); if (val > 0) { doc.setFillColor(...h2r(col)); doc.roundedRect(x, y, (w * val / max), 3, 1.5, 1.5, 'F') } };
+        const pill = (txt, x, y, col) => { const rgb = h2r(col); const safeTxt = pdfText(txt); const tw = doc.getTextWidth(safeTxt) + 8; const bg = [Math.round(rgb[0] * 0.15 + 255 * 0.85), Math.round(rgb[1] * 0.15 + 255 * 0.85), Math.round(rgb[2] * 0.15 + 255 * 0.85)]; doc.setFillColor(...bg); doc.roundedRect(x, y - 3.5, tw, 5.5, 2.5, 2.5, 'F'); doc.setDrawColor(...rgb); doc.setLineWidth(0.25); doc.roundedRect(x, y - 3.5, tw, 5.5, 2.5, 2.5, 'S'); doc.setTextColor(...rgb); doc.setFontSize(7); doc.setFont('helvetica', 'bold'); tx(safeTxt, x + 4, y, { baseline: 'middle' }) };
+
+        /* ════ PAGE 1 ════ */
+        const characterMapping = [
+          { min: 551, max: 600, level: 1, title: 'Outstanding Educator', name: 'Krishna', img: 'photos/level8.jpeg', desc: 'Krishna is the supreme guide, philosopher, and strategist. He didn\'t fight directly, but transformed warriors into achievers through wisdom, values, and mentorship. Like Krishna, an outstanding teacher inspires, empowers, and leaves a lasting legacy.' },
+          { min: 501, max: 550, level: 2, title: 'Exceptional Performer', name: 'Arjuna', img: 'photos/level3.jpeg', desc: 'Arjuna was highly skilled, focused, and disciplined yet even he needed Krishna\'s guidance in moments of doubt. Exceptional teachers are like Arjuna: brilliant and inspiring, but still refining a few aspects through reflection and mentorship.' },
+          { min: 451, max: 500, level: 3, title: 'Proficient Educator', name: 'Yudhishthira', img: 'photos/level2.jpeg', desc: 'Yudhishthira stood for dharma (righteousness), truth, and fairness. Though not the most aggressive, he was respected for his principles. A proficient teacher reflects Yudhishthira\'s strength consistent, ethical, dependable, though not always innovative or dynamic.' },
+          { min: 401, max: 450, level: 4, title: 'Developing Professional', name: 'Bhima', img: 'photos/level4.jpeg', desc: 'Bhima had immense strength and determination, but often lacked patience, subtlety, and diplomacy. A developing teacher is like Bhima passionate and committed, but requiring balance, polish, and refinement to channel energy effectively in classrooms.' },
+          { min: 351, max: 400, level: 5, title: 'Moderate Performer', name: 'Nakula', img: 'photos/level9.jpeg', desc: 'Nakula was virtuous, skilled, and loyal but often overshadowed by others. Moderate teachers mirror Nakula: they have potential and dedication but remain underutilized or unnoticed due to limited innovation or leadership visibility.' },
+          { min: 301, max: 350, level: 6, title: 'Emerging Educator', name: 'Sahadeva', img: 'photos/level1.jpeg', desc: 'Sahadeva had deep knowledge especially in astrology and foresight but rarely expressed it with confidence. Emerging teachers reflect Sahadeva\'s challenge: knowledge is present, but communication, confidence, or consistency holds them back.' },
+          { min: 201, max: 300, level: 7, title: 'Needs Improvement', name: 'Karna', img: 'photos/level7.jpeg', desc: 'Karna was immensely talented and generous but conflicted by divided loyalties and self-doubt. Teachers at this stage resemble Karna they have talent but struggle with alignment, consistency, or ethical dilemmas, reducing overall impact.' },
+          { min: 121, max: 200, level: 8, title: 'Under Performer', name: 'Dronacharya', img: 'photos/level5.jpeg', desc: 'Dronacharya was a great teacher but compromised his ethics by favoring one side due to personal obligations. Teachers here mirror Dronacharya\'s weakness strong technical knowledge but lack of fairness, values, or consistent commitment.' },
+          { min: 0, max: 120, level: 9, title: 'Critical Concern', name: 'Duryodhana', img: 'photos/level6.jpeg', desc: 'Duryodhana was powerful but blinded by arrogance, ego, and unethical choices. At this level, teachers resemble Duryodhana misaligned with teaching values, prioritizing personal interest over student growth, and requiring a fundamental rethinking of purpose.' }
+        ];
+        const charData = characterMapping.find(c => d.total >= c.min && d.total <= c.max) || characterMapping[8];
+
+        await _preloadReady;
+        const getCached = (src) => {
+          const c = _imgCache[src];
+          if (!c) return null;
+          return c;
+        };
+
+        const charCached = getCached(charData.img);
+        const charImg = charCached ? charCached.dataUrl : null;
+        const charImgW = charCached ? charCached.w : 0;
+        const charImgH = charCached ? charCached.h : 0;
+        const bannerCached = getCached('assets/Excel.jpeg');
+        const uniBanner = bannerCached ? bannerCached.dataUrl : null;
+        const uniBannerW = bannerCached ? bannerCached.w : 0;
+        const uniBannerH = bannerCached ? bannerCached.h : 0;
+
+        const headerY = uniBanner ? 31 : 0;
+
+        fillRect(0, 0, W, H, [246, 248, 252]);
+        if (uniBanner) {
+          const ar = (uniBannerW && uniBannerH) ? (uniBannerW / uniBannerH) : 4.5;
+          let bw = W - 24, bh = bw / ar;
+          if (bh > 24) { bh = 24; bw = bh * ar }
+          doc.addImage(uniBanner, 'JPEG', (W - bw) / 2, 4, bw, bh, undefined, 'FAST');
+        }
+        fillRect(0, headerY, W, 22, [173, 216, 230]);
+        fillRect(0, headerY + 22, W, 0.8, [212, 168, 67]);
+        sf('bold', 14, [43, 51, 64]); tx('Excel Mind', 12, headerY + 13);
+        sf('bold', 14, [212, 168, 67]); tx('Pulse', 12 + doc.getTextWidth('Excel Mind'), headerY + 13);
+        sf('normal', 8, [0, 0, 0]); tx('Teaching Competency Assessment of Faculty', 12, headerY + 19);
+        sf('normal', 8, [0, 0, 0]); tx('Date: ' + date, 100, headerY + 19);
+        const init = user.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+        doc.setFillColor(43, 39, 32); doc.setDrawColor(212, 168, 67); doc.setLineWidth(0.5); doc.circle(W - 16, headerY + 11, 7, 'FD');
+        sf('bold', 8, [212, 168, 67]); tx(init, W - 16, headerY + 11.5, { align: 'center' });
+
+        let y = headerY + 28;
+
+        rndRect(12, y, W - 24, 36, [255, 255, 255], [217, 224, 234]);
+        sf('bold', 7.5, [212, 168, 67]); tx('PARTICIPANT DETAILS', 16, y + 5.5);
+        ln(12, y + 8, W - 12, y + 8, [226, 232, 240], 0.3);
+        const row1Fields = [['Name', user.name], ['DOB', dob], ['Age', String(user.age)], ['Gender', user.gender]];
+        row1Fields.forEach((f, i) => {
+          const fx = [16, 60, 110, 150][i];
+          sf('bold', 7, [108, 120, 138]); tx(f[0], fx, y + 13);
+          sf('normal', 8.5, [43, 51, 64]); tx(f[1], fx, y + 17.5);
+        });
+        const row2Fields = [['Institution', user.college], ['Designation - Department', user.dept]];
+        row2Fields.forEach((f, i) => {
+          const fx = [16, 110][i];
+          sf('bold', 7, [108, 120, 138]); tx(f[0], fx, y + 26);
+          sf('normal', 8.5, [43, 51, 64]); tx(f[1], fx, y + 30.5);
+        });
+        y += 42;
+
+        // ══ COLOUR BAND for ring ══
+        let ringColor = d.prof.color;
+        if (d.totalPct >= 80) ringColor = '#3ec9a7';
+        else if (d.totalPct >= 60) ringColor = '#4a8fe8';
+        else if (d.totalPct >= 40) ringColor = '#d4a843';
+        else if (d.totalPct >= 30) ringColor = '#e8624a';
+        else ringColor = '#d32f2f';
+
+        const prgColor = ringColor;
+        const rgb = h2r(prgColor);
+        const sugRows = d.prof.suggestions;
+
+        const boxX = 12;
+        const boxW = W - 24;
+        const colGap = 4;
+        const rightBoxW = (boxW - colGap) / 2;
+        const leftBoxW = (boxW - colGap) / 2;
+        const rightBoxX = boxX + leftBoxW + colGap;
+
+        // ══ CHANGE 1: Overall Result — no indicators, add feedback/interpretation ══
+        // Calculate height needed for feedback text
+        const feedbackTextW = rightBoxW - 12;
+        sf('normal', 6.5, [82, 93, 110]);
+        const feedbackLines = doc.splitTextToSize(pdfText(d.prof.interp), feedbackTextW);
+        const feedbackLineH = 3.2;
+
+        // Ring zone height + label + divider + feedback
+        const r = 13;
+        // We'll compute sugBoxH and overall result box height below
+        const sugTextW = rightBoxW - 14;
+        const sugLineH = 3;
+        let sugPreviewH = 0;
+        sugRows.forEach(s => { const lines = doc.splitTextToSize(pdfText(s), sugTextW); sugPreviewH += lines.length * sugLineH + 1 });
+
+        // Overall Result box: header(8) + ring area(~44) + divider(1) + feedback header(5) + feedback lines + padding(4)
+        const ringAreaH = 8 + (r * 2) + 10 + 7; // header sep + ring dia + ring label + pill
+        const feedbackSectionH = 6 + feedbackLines.length * feedbackLineH + 3;
+        const rightBox1H = ringAreaH + 1 + feedbackSectionH;
+
+        // Left box same height
+        const leftBoxH = rightBox1H;
+
+        // Ring centre
+        const lcCx = rightBoxX + rightBoxW / 2;
+        const lcCy = y + 8 + r + 6; // after header bar
+
+        // Suggestions box
+        const sugBoxY = y + rightBox1H + 4;
+        const sugContentH = 10 + sugPreviewH + 2;
+
+        const symTextW = leftBoxW - 14;
+        const symLineH = 3;
+        sf('normal', 6.5, [82, 93, 110]);
+        const symLines = doc.splitTextToSize(pdfText(charData.desc), symTextW);
+        const symContentH = 10 + symLines.length * symLineH + 2;
+        const bottomBoxH = Math.max(symContentH, sugContentH);
+        const sugBoxH = bottomBoxH;
+
+        // ── Draw Overall Result box ──
+        rndRect(rightBoxX, y, rightBoxW, rightBox1H, [255, 255, 255], [217, 224, 234]);
+        sf('bold', 7.5, [212, 168, 67]); tx('OVERALL RESULT', rightBoxX + 4, y + 5.5);
+        ln(rightBoxX, y + 8, rightBoxX + rightBoxW, y + 8, [226, 232, 240], 0.3);
+
+        // Draw ring (score circle)
+        doc.setDrawColor(226, 232, 240); doc.setLineWidth(4); doc.circle(lcCx, lcCy, r, 'S');
+        doc.setDrawColor(...rgb); doc.setLineWidth(4);
+        const steps = Math.max(1, Math.round(d.totalPct / 100 * 360 / 3));
+        for (let i = 0; i < steps; i++) { const a1 = (-90 + i * 3) * Math.PI / 180; const a2 = (-90 + (i + 1) * 3) * Math.PI / 180; doc.line(lcCx + r * Math.cos(a1), lcCy + r * Math.sin(a1), lcCx + r * Math.cos(a2), lcCy + r * Math.sin(a2)) }
+        sf('bold', 16, rgb); tx(d.totalPct + '%', lcCx, lcCy + 2, { align: 'center' });
+        sf('normal', 7, [120, 131, 148]); tx('Overall Score', lcCx, lcCy + 8, { align: 'center' });
+
+        // Profile label pill
+        let ty = lcCy + r + 11;
+        const pillW = doc.getTextWidth(pdfText(d.prof.label)) + 8;
+        pill(d.prof.label, lcCx - pillW / 2, ty, prgColor);
+
+        // Divider between ring and feedback
+        const feedbackDivY = ty + 3;
+        ln(rightBoxX + 4, feedbackDivY, rightBoxX + rightBoxW - 4, feedbackDivY, [226, 232, 240], 0.3);
+
+        // "FEEDBACK" sub-header
+        sf('bold', 7, [212, 168, 67]); tx('FEEDBACK', rightBoxX + 4, feedbackDivY + 2);
+
+        // Feedback text
+        let feedY = feedbackDivY + 6;
+        sf('normal', 6.5, [82, 93, 110]);
+        const feedLinesActual = doc.splitTextToSize(pdfText(d.prof.interp), feedbackTextW);
+        feedLinesActual.forEach(line => { tx(line, rightBoxX + 4, feedY); feedY += feedbackLineH; });
+
+        // ── Draw Suggestions box (right column, bottom) ──
+        rndRect(rightBoxX, sugBoxY, rightBoxW, sugBoxH, [255, 255, 255], [217, 224, 234]);
+        sf('bold', 7, [212, 168, 67]); tx('SUGGESTIONS', rightBoxX + 4, sugBoxY + 4.5);
+        ln(rightBoxX, sugBoxY + 6.5, rightBoxX + rightBoxW, sugBoxY + 6.5, [226, 232, 240], 0.3);
+
+        let sugY = sugBoxY + 10;
+        sugRows.forEach((s) => {
+          doc.setFillColor(...rgb); doc.circle(rightBoxX + 4 + 1.5, sugY - 0.7, 0.8, 'F');
+          sf('normal', 6.5, [82, 93, 110]);
+          const lines = doc.splitTextToSize(pdfText(s), sugTextW);
+          tx(lines, rightBoxX + 4 + 6, sugY);
+          sugY += lines.length * sugLineH + 1;
+        });
+
+        let row2Y = Math.max(y + leftBoxH, sugBoxY + sugBoxH) + 2;
+
+        // ── Educator Persona (left box) ──
+        rndRect(boxX, y, leftBoxW, leftBoxH, [255, 255, 255], [217, 224, 234]);
+        let leftY = y + 6;
+        sf('bold', 7.5, [212, 168, 67]); tx('EDUCATOR PERSONA', boxX + 4, leftY);
+        ln(boxX, leftY + 2.5, boxX + leftBoxW, leftY + 2.5, [226, 232, 240], 0.3);
+        leftY += 8;
+        sf('bold', 9, [43, 51, 64]); tx(charData.title, boxX + leftBoxW / 2, leftY, { align: 'center' });
+        leftY += 6;
+        sf('bold', 12, [212, 168, 67]); tx(charData.name, boxX + leftBoxW / 2, leftY, { align: 'center' });
+        leftY += 4;
+        if (charImg) {
+          let imgW = leftBoxW - 8;
+          const imgRatio = charImgH / charImgW;
+          let imgH = imgW * imgRatio;
+          const maxImgH = leftBoxH - (leftY - y) - 4;
+          if (imgH > maxImgH) { imgH = maxImgH; imgW = imgH / imgRatio }
+          const imgX = boxX + (leftBoxW - imgW) / 2;
+          doc.addImage(charImg, 'JPEG', imgX, leftY, imgW, imgH, undefined, 'FAST');
+          leftY += imgH + 4;
+        } else { leftY += 10 }
+
+        // ── SYMBOLISM box (left bottom) ──
+        const symBoxY = y + leftBoxH + 4;
+        rndRect(boxX, symBoxY, leftBoxW, bottomBoxH, [255, 255, 255], [217, 224, 234]);
+        sf('bold', 7, [212, 168, 67]); tx('SYMBOLISM', boxX + 4, symBoxY + 4.5);
+        ln(boxX, symBoxY + 6.5, boxX + leftBoxW, symBoxY + 6.5, [226, 232, 240], 0.3);
+
+        const symFontSize = 10;
+        const symCentreX = boxX + leftBoxW / 2;
+        sf('bold', symFontSize, [82, 93, 110]);
+        const symLinesNew = doc.splitTextToSize(pdfText(charData.desc), symTextW);
+        const symLineHNew = symFontSize * 0.42;
+        const symAvailH = bottomBoxH - 12;
+        const symTotalH = symLinesNew.length * symLineHNew;
+        const symStartY = symBoxY + 9 + Math.max(0, (symAvailH - symTotalH) / 2);
+        symLinesNew.forEach((line, li) => { tx(line, symCentreX, symStartY + li * symLineHNew, { align: 'center' }); });
+
+        row2Y = Math.max(symBoxY + bottomBoxH, sugBoxY + sugBoxH) + 2;
+
+        // ── Category-wise Analysis bar chart ──
+        const catRowH = 4.5;
+        const halfSecs = Math.ceil(SECS.length / 2);
+        const catBoxH = 12 + halfSecs * catRowH + 4;
+
+        if (row2Y + catBoxH > 295) {
+          fillRect(0, H - 8, W, 8, [240, 243, 248]);
+          sf('normal', 6.5, [124, 135, 151]); tx('Excel MindPulse Psychometric Assessment - Confidential - Page 1 of 3', W / 2, H - 3, { align: 'center' });
+          doc.addPage(); fillRect(0, 0, W, H, [246, 248, 252]); row2Y = 15;
+        }
+
+        rndRect(boxX, row2Y, boxW, catBoxH, [255, 255, 255], [217, 224, 234]);
+        sf('bold', 7.5, [212, 168, 67]); tx('CATEGORY-WISE ANALYSIS', boxX + 4, row2Y + 5.5);
+        ln(boxX, row2Y + 8, boxX + boxW, row2Y + 8, [226, 232, 240], 0.3);
+
+        const colHalfW = boxW / 2;
+        const dividerX = boxX + colHalfW;
+        ln(dividerX, row2Y + 8, dividerX, row2Y + catBoxH, [226, 232, 240], 0.3);
+
+        const colPad = 4;
+        const catNameColW = 38;
+        const catScoreColW = 10;
+        const colContentW = colHalfW - colPad * 2;
+        const catBarW = colContentW - catNameColW - catScoreColW - 4;
+
+        const truncCat = (text, maxW) => {
+          sf('bold', 5.5, [0, 0, 0]);
+          let safe = pdfText(text);
+          if (doc.getTextWidth(safe) <= maxW) return safe;
+          while (safe.length > 0 && doc.getTextWidth(safe + '..') > maxW) safe = safe.slice(0, -1);
+          return safe + '..';
+        };
+
+        SECS.forEach((sec, i) => {
+          const score = d.secScores[sec.id];
+          const pctVal = pct(score, 50);
+          const isRight = i >= halfSecs;
+          const colIdx = isRight ? i - halfSecs : i;
+          const colBaseX = isRight ? dividerX + colPad : boxX + colPad;
+          const rY = row2Y + 13 + colIdx * catRowH;
+          const secRgb = h2r(sec.color);
+          const catBarX = colBaseX + catNameColW;
+          const catScoreEndX = catBarX + catBarW + catScoreColW;
+
+          doc.setFillColor(...secRgb);
+          doc.circle(colBaseX + 1.5, rY + 1, 1.1, 'F');
+          sf('normal', 5.5, secRgb);
+          tx(truncCat(sec.id + ': ' + sec.name, catNameColW - 7), colBaseX + 5, rY + 1.3);
+          hBar(catBarX, rY - 1.5, score, 50, catBarW, sec.color);
+          sf('normal', 6, secRgb);
+          tx(pctVal + '%', catScoreEndX - 1, rY + 1.5, { align: 'right' });
+        });
+
+        y = row2Y + catBoxH + 4;
+
+        fillRect(0, H - 8, W, 8, [240, 243, 248]);
+        sf('normal', 6.5, [124, 135, 151]); tx('Excel MindPulse Psychometric Assessment - Confidential - Page 1 of 3', W / 2, H - 3, { align: 'center' });
+
+        /* ════ PAGE 2 & 3: Category Recommendations ════ */
+        // ══ CHANGE 2: Each category card now has LEFT (interpretation) + RIGHT (recommendations) ══
+        const LINE_H = 3.4;
+        const RECO_INDENT = 10;
+        const BULLET_X_OFFSET = 7.5;
+
+        const drawRecoPageHeader = () => {
+          doc.addPage();
+          fillRect(0, 0, W, H, [246, 248, 252]);
+          fillRect(0, 0, W, 22, [173, 216, 230]);
+          fillRect(0, 22, W, 0.8, [212, 168, 67]);
+          sf('bold', 12, [43, 51, 64]); tx('Excel Mind', 12, 13);
+          sf('bold', 12, [212, 168, 67]); tx('Pulse', 12 + doc.getTextWidth('Excel Mind'), 13);
+          sf('normal', 8, [0, 0, 0]); tx('Category-wise Recommendations', 12, 19);
+          sf('normal', 8, [0, 0, 0]); tx(user.name + ' - ' + date, W - 12, 19, { align: 'right' });
+          return 28;
+        };
+
+        y = drawRecoPageHeader();
+
+        for (let si = 0; si < SECS.length; si++) {
+
+          if (si === 6) {
+            fillRect(0, H - 8, W, 8, [240, 243, 248]);
+            sf('normal', 6.5, [124, 135, 151]); tx('Excel MindPulse Psychometric Assessment - Confidential - Page 2 of 3', W / 2, H - 3, { align: 'center' });
+            y = drawRecoPageHeader();
+          }
+
+          const sec = SECS[si];
+          const score = d.secScores[sec.id];
+          const p2 = pct(score, 50);
+          const band = getSecBand(score);
+          const reco = SEC_RECO[sec.id][band];
+          const badgeTxt = band === 'high' ? 'High' : band === 'mod' ? 'Moderate' : 'Low';
+          const badgeCol = band === 'high' ? '#3ec9a7' : band === 'mod' ? '#d4a843' : '#e8624a';
+          const secRgb = h2r(sec.color);
+          const badgeRgb = h2r(badgeCol);
+
+          // Layout dimensions
+          const mediaW = (W - 24) * 0.22;
+          const contentW = (W - 24) - mediaW;   // right of image
+          // Split content into left (interpretation) and right (recommendations) halves
+          const interpColW = contentW * 0.45;
+          const recoColW   = contentW * 0.55;
+          const interpTextW = interpColW - 8;
+          const recoTextW   = recoColW - RECO_INDENT - 4;
+
+          // Measure interpretation text
+          sf('normal', 6.5, [82, 93, 110]);
+          const interpLines = doc.splitTextToSize(pdfText(reco.interp), interpTextW);
+          const interpContentH = interpLines.length * LINE_H;
+
+          // Measure recommendation items
+          let recoItemsH = 0;
+          reco.items.forEach(item => {
+            const lines = doc.splitTextToSize(pdfText(item), recoTextW);
+            recoItemsH += lines.length * LINE_H + 1.0;
+          });
+
+          const contentAreaH = Math.max(interpContentH, recoItemsH);
+          // Card = image-strip + header(8) + sub-labels(6) + content + padding
+          const CARD_H = 3 + 5 + 8 + contentAreaH + 4;
+
+          const mediaX = 12;
+          const contentX = 12 + mediaW;
+          const interpX  = contentX + 3;
+          const recoX    = contentX + interpColW + 3;
+
+          rndRect(12, y, W - 24, CARD_H, [255, 255, 255], [217, 224, 234]);
+
+          // Section image strip on the left
+          const secCached = getCached(sec.img);
+          if (secCached) {
+            try { doc.addImage(secCached.dataUrl, 'JPEG', mediaX + 1, y + 1, mediaW - 2, CARD_H - 2, undefined, 'FAST') } catch (e) { }
+          } else {
+            fillRect(mediaX + 1, y + 1, mediaW - 2, CARD_H - 2, [235, 239, 245]);
+            sf('bold', 8, secRgb); tx(sec.id, mediaX + (mediaW / 2), y + (CARD_H / 2), { align: 'center' });
+          }
+
+          // Left accent bar
+          fillRect(contentX, y, 2.5, CARD_H, secRgb);
+
+          // Section title
+          sf('bold', 8.5, secRgb); tx(sec.name, contentX + 5, y + 5);
+
+          // Badge (score + band label)
+          const line1 = badgeTxt + ' - ' + p2 + '%';
+          const line2 = pdfText(reco.label).slice(0, 28);
+          const bpillW = Math.max(doc.getTextWidth(pdfText(line1)), doc.getTextWidth(pdfText(line2))) + 8;
+          const badgeBg = [Math.round(badgeRgb[0] * 0.15 + 255 * 0.85), Math.round(badgeRgb[1] * 0.15 + 255 * 0.85), Math.round(badgeRgb[2] * 0.15 + 255 * 0.85)];
+          const badgeX = contentX + contentW - bpillW - 2;
+          const badgeY = y + 4.5;
+          doc.setFillColor(...badgeBg); doc.roundedRect(badgeX, badgeY - 3.5, bpillW, 11, 2.5, 2.5, 'F');
+          doc.setDrawColor(...badgeRgb); doc.setLineWidth(0.25); doc.roundedRect(badgeX, badgeY - 3.5, bpillW, 11, 2.5, 2.5, 'S');
+          doc.setTextColor(...badgeRgb); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+          doc.text(line1, badgeX + bpillW / 2, badgeY, { align: 'center' });
+          doc.text(line2, badgeX + bpillW / 2, badgeY + 5, { align: 'center' });
+
+          // Horizontal divider line under header
+          const hdivY = y + 11;
+          ln(contentX + 3, hdivY, contentX + contentW - 2, hdivY, [226, 232, 240], 0.3);
+
+          // Vertical divider between interpretation and recommendations
+          const vdivX = contentX + interpColW + 1;
+          ln(vdivX, hdivY, vdivX, y + CARD_H - 2, [226, 232, 240], 0.3);
+
+          // Sub-labels
+          sf('bold', 6.5, [212, 168, 67]); tx('Interpretation', interpX, hdivY + 5);
+          sf('bold', 6.5, [212, 168, 67]); tx('Recommendations', recoX, hdivY + 5);
+
+          const contentStartY = hdivY + 9;
+
+          // Draw interpretation text (left side)
+          sf('normal', 6.5, [60, 72, 88]);
+          const interpLinesActual = doc.splitTextToSize(pdfText(reco.interp), interpTextW);
+          interpLinesActual.forEach((line, li) => {
+            tx(line, interpX, contentStartY + li * LINE_H);
+          });
+
+          // Draw recommendations (right side)
+          let recoYcur = contentStartY;
+          reco.items.forEach((item) => {
+            const lines = doc.splitTextToSize(pdfText(item), recoTextW);
+            doc.setFillColor(...secRgb); doc.circle(recoX + BULLET_X_OFFSET - 4, recoYcur - 0.7, 0.8, 'F');
+            sf('normal', 6.5, [50, 60, 75]); tx(lines, recoX + RECO_INDENT - 4, recoYcur);
+            recoYcur += lines.length * LINE_H + 1.0;
+          });
+
+          y += CARD_H + 2;
+        }
+
+        sf('normal', 9, [50, 60, 75]); tx('For any further clarification or counselling sessions contact: Dr. Naveen P Y, Head - SSELD, 90143 51423, 99595 90826', W / 2, H - 16, { align: 'center' });
+
+        fillRect(0, H - 8, W, 8, [240, 243, 248]);
+        sf('normal', 6.5, [124, 135, 151]); tx('Excel MindPulse Psychometric Assessment - Confidential - Page 3 of 3', W / 2, H - 3, { align: 'center' });
+
+        const filename = 'excel-mindpulse-report-' + user.name.replace(/\s+/g, '-').toLowerCase() + '.pdf';
+        
+        try {
+          // Get the PDF as a blob first
+          const pdfBlob = doc.output('blob');
+          
+          // Send to admin email
+          sendPdfToAdmin(pdfBlob, filename, window._reportData);
+          
+          // Also download to user's device
+          try {
+            doc.save(filename);
+          } catch (saveErr) {
+            try {
+              const url = URL.createObjectURL(pdfBlob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = filename;
+              document.body.appendChild(link);
+              link.click();
+              link.remove();
+              URL.revokeObjectURL(url);
+            } catch (blobErr) {
+              console.error('PDF download failed', saveErr, blobErr);
+              alert('PDF download failed. Please open the browser console for details.');
+            }
+          }
+        } catch (err) {
+          console.error('PDF generation/sending failed', err);
+          alert('PDF generation failed. Please open the browser console for details.');
+        }
+      } catch (err) {
+        console.error('PDF generation failed', err);
+        alert('PDF generation failed. Please open the browser console for details.');
+      }
+    }
+  </script>
+</body>
+
+</html>
