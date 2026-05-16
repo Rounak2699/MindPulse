@@ -1634,6 +1634,10 @@
               body: JSON.stringify(payload)
             });
 
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
             const result = await response.json();
             if (result.success) {
               console.log('✅ Report sent to admin:', result.message);
@@ -1641,7 +1645,7 @@
               console.warn('⚠️ Failed to send report:', result.message);
             }
           } catch (error) {
-            console.error('❌ Error sending report to admin:', error);
+            console.error('❌ Error sending report to admin:', error.message || error);
           }
         };
         reader.readAsDataURL(pdfBlob);
