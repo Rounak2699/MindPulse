@@ -38,6 +38,15 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Verify transporter connection at startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('❌ Email transporter error:', error.message);
+  } else {
+    console.log('✅ Email transporter ready - connection verified');
+  }
+});
+
 // ═══════════════════════════════════════════════════════════
 // 📧 ENDPOINT: Send PDF Report via Email
 // ═══════════════════════════════════════════════════════════
@@ -83,14 +92,20 @@ app.post('/api/send-report', async (req, res) => {
 
     // Send email with timeout
     try {
+      console.log(`📤 Attempting to send email from ${EMAIL_CONFIG.ADMIN_GMAIL} to ${EMAIL_CONFIG.ADMIN_EMAIL}`);
       await Promise.race([
         transporter.sendMail(mailOptions),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Email send timeout')), 10000)
         )
       ]);
-      console.log(`✅ Email sent to ${EMAIL_CONFIG.ADMIN_EMAIL}`);
+      console.log(`✅ Email sent successfully to ${EMAIL_CONFIG.ADMIN_EMAIL}`);
     } catch (emailError) {
+      console.error(`❌ Email error details:`, {
+        message: emailError.message,
+        code: emailError.code,
+        response: emailError.response
+      });
       console.warn(`⚠️ Email sending failed (non-blocking): ${emailError.message}`);
       // Don't fail the entire request - email is optional
     }
@@ -120,6 +135,29 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// ═══════════════════════════════════════════════════════════
+// Diagnostic endpoint (for debugging)
+// ═══════════════════════════════════════════════════════════
+app.get('/api/debug', (req, res) => {
+  res.json({ 
+    status: 'running',
+    environment: {
+      node_env: process.env.NODE_ENV || 'not set',
+      port: process.env.PORT || '3000'
+    },
+    email_config: {
+      admin_gmail: EMAIL_CONFIG.ADMIN_GMAIL,
+      gmail_password_length: EMAIL_CONFIG.GMAIL_PASSWORD.length,
+      admin_email: EMAIL_CONFIG.ADMIN_EMAIL,
+      env_vars_loaded: {
+        ADMIN_GMAIL: !!process.env.ADMIN_GMAIL,
+        GMAIL_PASSWORD: !!process.env.GMAIL_PASSWORD,
+        ADMIN_EMAIL: !!process.env.ADMIN_EMAIL
+      }
+    }
+  });
+});
+
 // Serve main HTML file
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'MindScopeV3.html'));
@@ -137,5 +175,7 @@ app.listen(PORT, () => {
   console.log('\n⚙️  EMAIL CONFIGURATION:');
   console.log(`   Gmail Account: ${EMAIL_CONFIG.ADMIN_GMAIL}`);
   console.log(`   Admin Email: ${EMAIL_CONFIG.ADMIN_EMAIL}`);
-  console.log(`   Using Environment Variables: ${usingEnvVars ? '✅ YES' : '❌ NO (using defaults)'}\n`);
+  console.log(`   Using Environment Variables: ${usingEnvVars ? '✅ YES' : '❌ NO (using defaults)'}`);
+  console.log(`   Password length: ${EMAIL_CONFIG.GMAIL_PASSWORD.length} characters`);
+  console.log(`\n🔍 Debug endpoint available at: /api/debug\n`);
 });
