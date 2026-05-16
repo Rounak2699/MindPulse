@@ -17,7 +17,7 @@ app.use(express.static('.'));
 const EMAIL_CONFIG = {
   // Gmail account credentials
   ADMIN_GMAIL: 'excelmindpulse@gmail.com',        // ← ENTER YOUR GMAIL HERE
-  GMAIL_PASSWORD: 'vqbyaaljubwjqaky',        // ← ENTER YOUR GMAIL APP PASSWORD HERE
+  GMAIL_PASSWORD: 'rygfziryurpcsgvb',        // ← ENTER YOUR GMAIL APP PASSWORD HERE
   
   // Admin email where reports will be sent
   ADMIN_EMAIL: 'excelmindpulse@gmail.com',           // ← ENTER ADMIN EMAIL HERE
