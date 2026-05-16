@@ -17,7 +17,7 @@ app.use(express.static('.'));
 const EMAIL_CONFIG = {
   // Gmail account credentials - read from environment variables
   ADMIN_GMAIL: process.env.ADMIN_GMAIL || 'excelmindpulse@gmail.com',
-  GMAIL_PASSWORD: process.env.GMAIL_PASSWORD || 'rygfziryurpcsgvb',
+  GMAIL_PASSWORD: process.env.GMAIL_PASSWORD || 'olykbhiawtgawrqx',
   
   // Admin email where reports will be sent
   ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'excelmindpulse@gmail.com',
