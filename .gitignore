@@ -1,2 +1,3 @@
-node_modules
-EMAIL_SETUP.md
+node_modules/
+.env
+*.log
