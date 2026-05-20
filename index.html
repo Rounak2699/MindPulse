@@ -1452,7 +1452,7 @@
       const u = document.getElementById('auth-user').value.trim();
       const p = document.getElementById('auth-pass').value;
       const err = document.getElementById('auth-err');
-      if (u === 'user123' && p === '90143514') { err.style.display = 'none'; try { sessionStorage.setItem('mp_status', 'authed'); } catch (e) { console.warn('Cannot set session:', e) } showScreen('screen-login') }
+      if (u === 'user123' && p === 'fact1234') { err.style.display = 'none'; try { sessionStorage.setItem('mp_status', 'authed'); } catch (e) { console.warn('Cannot set session:', e) } showScreen('screen-login') }
       else { err.style.display = 'block' }
     }
 
